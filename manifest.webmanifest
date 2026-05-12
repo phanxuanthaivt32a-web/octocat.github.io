@@ -1,0 +1,16 @@
+{
+  "name": "Dashboard Trạm BTS",
+  "short_name": "BTS Dashboard",
+  "description": "Phân tích Doanh thu - Chi phí - Lãi/Lỗ trạm BTS theo tháng",
+  "start_url": "./bts-dashboard.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f1729",
+  "theme_color": "#0b3d91",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "categories": ["business", "productivity", "finance"]
+}

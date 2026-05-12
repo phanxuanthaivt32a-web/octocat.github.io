@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d91">
+<meta name="description" content="Dashboard phân tích Doanh thu - Chi phí trạm BTS">
+<title>Dashboard Trạm BTS</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{
+  --bg:#0f1729; --bg2:#172040; --card:#1d2647; --card2:#252e54;
+  --text:#e6ebf5; --muted:#8e9bb8; --border:#2c3666;
+  --primary:#3b82f6; --primary-hover:#2563eb;
+  --success:#10b981; --warn:#f59e0b; --danger:#ef4444;
+  --chart1:#3b82f6; --chart2:#10b981; --chart3:#f59e0b; --chart4:#ef4444; --chart5:#a855f7; --chart6:#06b6d4;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f7f8fc; --bg2:#ffffff; --card:#ffffff; --card2:#f0f3fa;
+    --text:#0f1729; --muted:#5b6478; --border:#dde2ec;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+.app{max-width:1400px;margin:0 auto;padding:12px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#1e40af);display:grid;place-items:center;color:#fff;font-weight:700;font-size:18px}
+.brand h1{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.brand .sub{font-size:11px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:9px 14px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn:hover{background:var(--card2)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn.danger{color:var(--danger)}
+
+/* Upload */
+.upload-wrap{margin-top:18px;padding:36px 18px;border:2px dashed var(--border);border-radius:18px;background:var(--card);text-align:center}
+.upload-wrap.dragover{border-color:var(--primary);background:var(--card2)}
+.upload-icon{width:64px;height:64px;border-radius:18px;background:var(--card2);display:grid;place-items:center;font-size:32px;margin:0 auto 14px}
+.upload-wrap h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.upload-wrap p{color:var(--muted);font-size:13px;margin-bottom:16px}
+.file-slots{display:grid;grid-template-columns:1fr;gap:10px;max-width:560px;margin:0 auto;text-align:left}
+@media(min-width:640px){.file-slots{grid-template-columns:1fr 1fr}}
+.file-slot{border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--card2);font-size:12px;position:relative}
+.file-slot.loaded{border-color:var(--success);background:rgba(16,185,129,.08)}
+.file-slot label{display:block;font-weight:600;margin-bottom:4px}
+.file-slot .hint{color:var(--muted);font-size:11px;margin-bottom:8px}
+.file-slot input[type=file]{font-size:12px;width:100%}
+.file-slot .filename{font-size:11px;color:var(--success);margin-top:6px;word-break:break-all}
+
+/* KPI Cards */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+@media(min-width:640px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:980px){.kpis{grid-template-columns:repeat(6,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+.kpi .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.kpi .value{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.kpi .delta{font-size:11px;margin-top:4px}
+.kpi .delta.pos{color:var(--success)}
+.kpi .delta.neg{color:var(--danger)}
+.kpi.danger .value{color:var(--danger)}
+.kpi.success .value{color:var(--success)}
+.kpi.warn .value{color:var(--warn)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-top:18px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap;font-weight:500}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* Panel */
+.panel{margin-top:14px}
+.panel-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.panel-section h3{font-size:14px;font-weight:600;margin-bottom:4px}
+.panel-section .desc{font-size:12px;color:var(--muted);margin-bottom:12px}
+
+/* Table */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card)}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{background:var(--card2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);position:sticky;top:0;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+td.pos{color:var(--success);font-weight:600}
+td.neg{color:var(--danger);font-weight:600}
+tr:hover td{background:var(--card2)}
+.badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:600;text-transform:uppercase}
+.badge.macro{background:rgba(59,130,246,.18);color:#60a5fa}
+.badge.cran{background:rgba(168,85,247,.18);color:#c084fc}
+.badge.moran{background:rgba(245,158,11,.18);color:#fbbf24}
+.badge.danger{background:rgba(239,68,68,.18);color:#fca5a5}
+.badge.warn{background:rgba(245,158,11,.18);color:#fbbf24}
+.badge.success{background:rgba(16,185,129,.18);color:#6ee7b7}
+
+/* Chart */
+.chart-wrap{position:relative;height:280px}
+@media(min-width:768px){.chart-wrap{height:340px}}
+.charts-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:768px){.charts-grid{grid-template-columns:1fr 1fr}}
+
+/* Filter */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filter-bar select,.filter-bar input{padding:8px 10px;border-radius:9px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:12px;font-family:inherit}
+.filter-bar input{flex:1;min-width:120px}
+
+/* Recommendation cards */
+.recs{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:768px){.recs{grid-template-columns:1fr 1fr}}
+.rec{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--card2);font-size:13px}
+.rec .rec-num{display:inline-block;width:24px;height:24px;border-radius:6px;background:var(--primary);color:#fff;text-align:center;line-height:24px;font-weight:700;font-size:12px;margin-bottom:8px}
+.rec .rec-title{font-weight:600;margin-bottom:6px}
+.rec .rec-impact{font-size:11px;color:var(--success);font-weight:600;margin-top:8px}
+.rec .rec-impact.warn{color:var(--warn)}
+
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.loading{text-align:center;padding:40px 20px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.muted{color:var(--muted)}
+.notice{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fbbf24;padding:10px 12px;border-radius:10px;font-size:12px;margin-bottom:12px}
+
+/* Hide tab panels not active */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Mobile install banner */
+.install-banner{display:none;position:fixed;bottom:14px;left:14px;right:14px;background:var(--primary);color:#fff;padding:12px 14px;border-radius:12px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:100;align-items:center;justify-content:space-between;gap:8px}
+.install-banner.show{display:flex}
+.install-banner button{background:#fff;color:var(--primary);border:none;padding:6px 12px;border-radius:7px;font-weight:600;cursor:pointer;font-size:12px}
+
+footer{margin-top:24px;padding:20px 4px;text-align:center;color:var(--muted);font-size:11px}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <div class="brand">
+      <div class="brand-icon">B</div>
+      <div>
+        <h1>Dashboard Trạm BTS</h1>
+        <div class="sub">Doanh thu · Chi phí · P&amp;L · Khuyến nghị</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnTheme" title="Đổi giao diện">🌙</button>
+      <button class="btn" id="btnReload" title="Tải lại dữ liệu">↻ Tải lại CSV</button>
+      <button class="btn danger" id="btnClear" title="Xóa dữ liệu" style="display:none">Xóa</button>
+    </div>
+  </header>
+
+  <!-- Upload area -->
+  <section id="uploadSection" class="upload-wrap">
+    <div class="upload-icon">📊</div>
+    <h2>Tải lên 2 file CSV để bắt đầu</h2>
+    <p>Báo cáo trạm tháng &amp; Chi phí duy trì trạm. Dữ liệu xử lý hoàn toàn trên thiết bị của bạn — không gửi lên server.</p>
+    <div class="file-slots">
+      <div class="file-slot" id="slotBC">
+        <label>📈 File 1: Báo cáo trạm</label>
+        <div class="hint">VD: baocaotramthang_*.csv. Có cột Doanh thu / Chi phí / Lưu lượng.</div>
+        <input type="file" id="fileBC" accept=".csv,text/csv">
+        <div class="filename" id="nameBC"></div>
+      </div>
+      <div class="file-slot" id="slotCP">
+        <label>💸 File 2: Chi phí duy trì trạm</label>
+        <div class="hint">VD: CP duy trì trạm mỗi tháng-PVT.csv. Có Tiền điện, Mặt bằng, Truyền dẫn…</div>
+        <input type="file" id="fileCP" accept=".csv,text/csv">
+        <div class="filename" id="nameCP"></div>
+      </div>
+    </div>
+    <p style="margin-top:18px;font-size:12px"><span class="muted">Bạn có thể tải 1 hoặc cả 2 file. Phân tích đầy đủ nhất khi có cả hai.</span></p>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="dashboardSection" style="display:none">
+
+    <div id="notices"></div>
+
+    <!-- KPIs -->
+    <div class="kpis" id="kpis"></div>
+
+    <!-- Tabs -->
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-panel="overview">📊 Tổng quan</button>
+      <button class="tab" data-panel="ranking">🏆 Xếp hạng trạm</button>
+      <button class="tab" data-panel="anomalies">⚠️ Bất thường</button>
+      <button class="tab" data-panel="trends">📈 Xu hướng</button>
+      <button class="tab" data-panel="costs">🥧 Cơ cấu chi phí</button>
+      <button class="tab" data-panel="recs">💡 Khuyến nghị</button>
+    </div>
+
+    <!-- Panels -->
+    <div class="panel">
+
+      <div class="tab-panel active" id="panel-overview">
+        <div class="charts-grid">
+          <div class="panel-section">
+            <h3>Top 10 trạm có lãi cao nhất</h3>
+            <div class="desc">Lợi nhuận = Doanh thu − Chi phí duy trì (file 2). Đơn vị: triệu VND.</div>
+            <div class="chart-wrap"><canvas id="chTopProfit"></canvas></div>
+          </div>
+          <div class="panel-section">
+            <h3>Top 10 trạm lỗ nặng nhất</h3>
+            <div class="desc">Cần ưu tiên xem xét tối ưu hoặc đóng cửa.</div>
+            <div class="chart-wrap"><canvas id="chTopLoss"></canvas></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Phân bố biên lợi nhuận của các trạm</h3>
+          <div class="desc">Histogram biên lợi nhuận (%): lệch trái = nhiều trạm lỗ.</div>
+          <div class="chart-wrap"><canvas id="chMarginHist"></canvas></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-ranking">
+        <div class="panel-section">
+          <h3>Bảng xếp hạng toàn bộ trạm</h3>
+          <div class="desc">Bấm vào tiêu đề cột để sắp xếp. Lọc theo phường/loại trạm.</div>
+          <div class="filter-bar">
+            <input type="text" id="searchStation" placeholder="🔍 Tìm theo Site ID hoặc phường…">
+            <select id="filterWard"><option value="">Tất cả phường</option></select>
+            <select id="filterType"><option value="">Tất cả loại trạm</option></select>
+            <select id="filterStatus"><option value="">Tất cả</option><option value="profit">Có lãi</option><option value="loss">Lỗ</option></select>
+          </div>
+          <div class="table-wrap" style="max-height:560px;overflow-y:auto">
+            <table id="rankTable">
+              <thead><tr>
+                <th data-sort="siteId">Site ID</th>
+                <th data-sort="ward">Phường</th>
+                <th data-sort="type">Loại</th>
+                <th data-sort="revenue" class="num">Doanh thu</th>
+                <th data-sort="cost" class="num">Chi phí (file 2)</th>
+                <th data-sort="profit" class="num">Lãi/Lỗ</th>
+                <th data-sort="margin" class="num">Biên %</th>
+                <th data-sort="subActive" class="num">TB hoạt động</th>
+              </tr></thead>
+              <tbody id="rankBody"></tbody>
+            </table>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px" id="rankInfo"></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-anomalies">
+        <div class="panel-section">
+          <h3>Chi phí bất thường (z-score &gt; 2)</h3>
+          <div class="desc">Các trạm có một khoản chi phí cụ thể cao bất thường so với trung bình. Ưu tiên kiểm tra hợp đồng / hoá đơn.</div>
+          <div class="table-wrap" style="max-height:480px;overflow-y:auto">
+            <table>
+              <thead><tr>
+                <th>Site ID</th>
+                <th>Loại chi phí bất thường</th>
+                <th class="num">Giá trị (VND)</th>
+                <th class="num">Trung bình</th>
+                <th class="num">Z-score</th>
+                <th>Mức độ</th>
+              </tr></thead>
+              <tbody id="anomBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Trạm có chênh lệch giữa file 1 và file 2</h3>
+          <div class="desc">"Chi phí trạm" trong file 1 (báo cáo) thấp hơn nhiều so với tổng chi phí thực tế trong file 2 — có thể báo cáo thiếu.</div>
+          <div class="table-wrap" style="max-height:360px;overflow-y:auto">
+            <table>
+              <thead><tr>
+                <th>Site ID</th>
+                <th class="num">Chi phí F1</th>
+                <th class="num">Chi phí F2</th>
+                <th class="num">Chênh lệch</th>
+                <th class="num">% lệch</th>
+              </tr></thead>
+              <tbody id="diffBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-trends">
+        <div class="panel-section">
+          <h3>Xu hướng doanh thu &amp; chi phí theo tháng</h3>
+          <div class="desc">Tổng cộng toàn bộ trạm. Hiển thị khi file 1 có nhiều tháng.</div>
+          <div class="chart-wrap"><canvas id="chTrend"></canvas></div>
+        </div>
+        <div class="panel-section">
+          <h3>Tăng trưởng doanh thu theo phường (Top 8)</h3>
+          <div class="desc">Phường nào đang tăng / giảm doanh thu nhanh nhất.</div>
+          <div class="chart-wrap"><canvas id="chWardTrend"></canvas></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-costs">
+        <div class="panel-section">
+          <h3>Cơ cấu chi phí toàn tỉnh</h3>
+          <div class="desc">Tỉ trọng các khoản chi phí duy trì trạm.</div>
+          <div class="chart-wrap"><canvas id="chCostPie"></canvas></div>
+        </div>
+        <div class="panel-section">
+          <h3>Trung bình chi phí theo loại trạm</h3>
+          <div class="desc">So sánh MACRO / CRAN / MORAN VNPT HOST.</div>
+          <div class="chart-wrap"><canvas id="chCostByType"></canvas></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-recs">
+        <div class="panel-section">
+          <h3>Khuyến nghị tối ưu chi phí</h3>
+          <div class="desc">Sinh tự động từ dữ liệu. Đã ưu tiên theo mức tiết kiệm tiềm năng.</div>
+          <div class="recs" id="recsContainer"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div id="installBanner" class="install-banner">
+    <span>📱 Cài Dashboard vào điện thoại như một app</span>
+    <button id="btnInstall">Cài đặt</button>
+  </div>
+
+  <footer>
+    Dashboard BTS · Phân tích cục bộ trên thiết bị của bạn · Không gửi dữ liệu ra ngoài.
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ============= UTILS =============
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+function parseVN(s){
+  if(s==null) return 0;
+  let v = String(s).trim();
+  if(!v || v==='-' || v==='—') return 0;
+  v = v.replace(/\s/g,'').replace(/ /g,'');
+  // Vietnamese: 1.234.567,89 -> remove dots (thousand separator), comma -> dot
+  v = v.replace(/\./g,'').replace(',','.');
+  const n = parseFloat(v);
+  return isNaN(n)?0:n;
+}
+
+function fmtVN(n,decimals=0){
+  if(n==null||isNaN(n)) return '—';
+  const sign = n<0?'-':'';
+  const abs = Math.abs(n);
+  return sign + abs.toLocaleString('vi-VN',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+}
+
+function fmtShort(n){
+  if(n==null||isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  const sign = n<0?'-':'';
+  if(abs>=1e12) return sign + (abs/1e12).toFixed(2)+' nghìn tỷ';
+  if(abs>=1e9) return sign + (abs/1e9).toFixed(2)+' tỷ';
+  if(abs>=1e6) return sign + (abs/1e6).toFixed(1)+' tr';
+  if(abs>=1e3) return sign + (abs/1e3).toFixed(0)+' ng';
+  return sign + abs.toFixed(0);
+}
+
+function fmtPct(n){
+  if(n==null||isNaN(n)||!isFinite(n)) return '—';
+  return (n*100).toFixed(1)+'%';
+}
+
+// ============= STATE =============
+const state = {
+  bcRows: [],     // file 1 rows
+  cpRows: [],     // file 2 rows
+  stations: [],   // joined per-station
+  byMonth: {},    // month -> aggregates
+  charts: {},
+  bcFile: null, cpFile: null,
+  sortKey: 'profit', sortDir: 'asc'
+};
+
+// ============= PARSE =============
+function parseBC(text){
+  const parsed = Papa.parse(text,{delimiter:';',skipEmptyLines:true});
+  const rows = parsed.data;
+  let hi = rows.findIndex(r => (r[0]==='Mạng' && r[1]==='Tháng') || (r[0] && String(r[0]).trim()==='Mạng' && r.some(c => c && String(c).includes('CSHT'))));
+  if(hi<0) hi = rows.findIndex(r => r.some(c => c && String(c).includes('Tên CSHT')));
+  if(hi<0) return [];
+  const data = [];
+  for(let i=hi+1;i<rows.length;i++){
+    const r = rows[i];
+    if(!r || !r[2]) continue;
+    if(!r[1] || !String(r[1]).match(/\d{2}\/\d{4}/)) continue;
+    data.push({
+      month: String(r[1]).trim(),
+      siteId: String(r[2]).trim(),
+      stdName: String(r[4]||'').trim(),
+      coord: String(r[5]||'').trim(),
+      province: String(r[6]||'').trim(),
+      ward: String(r[7]||'').trim(),
+      tech: String(r[8]||'').trim(),
+      type: String(r[9]||'').trim(),
+      startDate: String(r[10]||'').trim(),
+      revenue: parseVN(r[14]),
+      costF1: parseVN(r[15]),
+      subVLR: parseVN(r[16]),
+      subPSC: parseVN(r[17]),
+      subActive: parseVN(r[18]),
+      dataGB: parseVN(r[19]),
+      voiceMin: parseVN(r[20]),
+      sms: parseVN(r[21])
+    });
+  }
+  return data;
+}
+
+function parseCP(text){
+  const parsed = Papa.parse(text,{delimiter:';',skipEmptyLines:true});
+  const rows = parsed.data;
+  let hi = rows.findIndex(r => r[0]==='STT' && r[1]==='Site ID');
+  if(hi<0) hi = rows.findIndex(r => r.some(c => c && String(c).includes('Site ID')));
+  if(hi<0) return [];
+  const data = [];
+  for(let i=hi+1;i<rows.length;i++){
+    const r = rows[i];
+    if(!r || !r[1]) continue;
+    const sid = String(r[1]).trim();
+    if(!sid || sid==='Site ID') continue;
+    data.push({
+      siteId: sid,
+      costM1: parseVN(r[2]),
+      costM2: parseVN(r[3]),
+      elecM1: parseVN(r[4]),
+      fuelM1: parseVN(r[5]),
+      elecM2: parseVN(r[6]),
+      fuelM2: parseVN(r[7]),
+      infraTotal: parseVN(r[8]),
+      landRent: parseVN(r[9]),
+      fireSafety: parseVN(r[10]),
+      infra: parseVN(r[11]),
+      vhktBts: parseVN(r[12]),
+      transmission: parseVN(r[13]),
+      generatorRent: parseVN(r[14]),
+      gpts: parseVN(r[15])
+    });
+  }
+  return data;
+}
+
+// ============= ANALYZE =============
+function buildStations(){
+  // Group bcRows by siteId
+  const bcBySite = {};
+  state.bcRows.forEach(r => {
+    if(!bcBySite[r.siteId]) bcBySite[r.siteId] = [];
+    bcBySite[r.siteId].push(r);
+  });
+  const cpBySite = {};
+  state.cpRows.forEach(r => { cpBySite[r.siteId] = r; });
+
+  // Union of all site ids
+  const ids = new Set([...Object.keys(bcBySite), ...Object.keys(cpBySite)]);
+  const stations = [];
+  ids.forEach(id => {
+    const bc = bcBySite[id] || [];
+    const cp = cpBySite[id];
+    // Use earliest month (or first) row in bc as metadata
+    const meta = bc[0] || {};
+    // Average revenue, sub counts across months
+    const revs = bc.map(b => b.revenue).filter(v => v>0);
+    const avgRev = revs.length ? revs.reduce((a,b)=>a+b,0)/revs.length : 0;
+    const totalRev = bc.reduce((a,b)=>a+b.revenue,0);
+    const avgSub = bc.length ? bc.reduce((a,b)=>a+b.subActive,0)/bc.length : 0;
+    const avgData = bc.length ? bc.reduce((a,b)=>a+b.dataGB,0)/bc.length : 0;
+    const costF1Avg = bc.length ? bc.reduce((a,b)=>a+b.costF1,0)/bc.length : 0;
+    // Cost from file 2: average of month 1 & 2 (if both)
+    let costF2 = 0;
+    if(cp){
+      const arr = [cp.costM1, cp.costM2].filter(v => v>0);
+      costF2 = arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : (cp.costM1||cp.costM2||0);
+    }
+    const useCost = costF2 > 0 ? costF2 : costF1Avg;
+    const profit = avgRev - useCost;
+    const margin = avgRev > 0 ? profit/avgRev : (profit<0?-1:0);
+    stations.push({
+      siteId: id,
+      ward: meta.ward || '—',
+      province: meta.province || '—',
+      tech: meta.tech || '—',
+      type: meta.type || '—',
+      startDate: meta.startDate || '—',
+      coord: meta.coord || '',
+      months: bc.length,
+      avgRev, totalRev, avgSub, avgData,
+      costF1: costF1Avg,
+      costF2: costF2,
+      cost: useCost,
+      profit, margin,
+      cp: cp || null,
+      bc
+    });
+  });
+  state.stations = stations;
+}
+
+function computeMonthly(){
+  // Aggregate by month
+  const map = {};
+  state.bcRows.forEach(r => {
+    if(!map[r.month]) map[r.month] = { revenue:0, costF1:0, count:0, dataGB:0, subActive:0 };
+    map[r.month].revenue += r.revenue;
+    map[r.month].costF1 += r.costF1;
+    map[r.month].dataGB += r.dataGB;
+    map[r.month].subActive += r.subActive;
+    map[r.month].count += 1;
+  });
+  // Sort months chronologically
+  const months = Object.keys(map).sort((a,b) => {
+    const [ma,ya] = a.split('/').map(Number);
+    const [mb,yb] = b.split('/').map(Number);
+    return ya===yb ? ma-mb : ya-yb;
+  });
+  state.byMonth = { months, data: map };
+}
+
+function findAnomalies(){
+  // For each cost category in file 2, find z-scores > 2
+  const categories = [
+    {key:'transmission', label:'Truyền dẫn (thuê)'},
+    {key:'landRent', label:'Mặt bằng'},
+    {key:'elecM1', label:'Tiền điện T1'},
+    {key:'elecM2', label:'Tiền điện T2'},
+    {key:'fuelM1', label:'Nhiên liệu T1'},
+    {key:'fuelM2', label:'Nhiên liệu T2'},
+    {key:'infra', label:'Hạ tầng'},
+    {key:'generatorRent', label:'Thuê máy nổ'},
+    {key:'fireSafety', label:'PCCC'},
+    {key:'vhktBts', label:'VHKT BTS'}
+  ];
+  const results = [];
+  categories.forEach(c => {
+    const vals = state.cpRows.map(r => r[c.key]).filter(v => v>0);
+    if(vals.length<10) return;
+    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+    const sd = Math.sqrt(vals.reduce((a,b)=>a+(b-mean)*(b-mean),0)/vals.length);
+    if(sd<=0) return;
+    state.cpRows.forEach(r => {
+      const v = r[c.key];
+      if(v<=0) return;
+      const z = (v-mean)/sd;
+      if(z>2){
+        results.push({
+          siteId: r.siteId,
+          category: c.label,
+          value: v,
+          mean,
+          z,
+          severity: z>4?'Cực cao':z>3?'Rất cao':'Cao'
+        });
+      }
+    });
+  });
+  return results.sort((a,b) => b.z-a.z);
+}
+
+function findF1F2Diff(){
+  // Compare costF1 vs costF2
+  const diffs = [];
+  state.stations.forEach(s => {
+    if(s.costF1>0 && s.costF2>0){
+      const d = s.costF2 - s.costF1;
+      const pct = s.costF2>0 ? d/s.costF2 : 0;
+      if(Math.abs(pct)>0.15){
+        diffs.push({siteId:s.siteId, costF1:s.costF1, costF2:s.costF2, diff:d, pct});
+      }
+    }
+  });
+  return diffs.sort((a,b) => Math.abs(b.pct) - Math.abs(a.pct));
+}
+
+function buildRecommendations(){
+  const recs = [];
+  const stations = state.stations;
+  if(!stations.length) return recs;
+
+  // 1. High-cost transmission stations
+  const txStations = state.cpRows.filter(r => r.transmission > 5e6).sort((a,b) => b.transmission - a.transmission);
+  if(txStations.length){
+    const top = txStations.slice(0,5);
+    const totalTx = txStations.reduce((a,b)=>a+b.transmission,0);
+    recs.push({
+      title: 'Đàm phán lại / chuyển sang cáp quang riêng các hợp đồng thuê truyền dẫn',
+      detail: `Có ${txStations.length} trạm đang trả phí thuê truyền dẫn > 5 triệu/tháng, tổng cộng <b>${fmtShort(totalTx)} VND/tháng</b>. Top trạm: ${top.map(t=>t.siteId+' ('+fmtShort(t.transmission)+')').join(', ')}.`,
+      impact: `Tiết kiệm tiềm năng: ~${fmtShort(totalTx*0.3)}/tháng (giảm 30%)`,
+      level: 'high'
+    });
+  }
+
+  // 2. Loss-making stations
+  const losers = stations.filter(s => s.profit<0 && s.cost>0).sort((a,b) => a.profit-b.profit);
+  if(losers.length){
+    const totalLoss = losers.reduce((a,b)=>a+b.profit,0);
+    recs.push({
+      title: 'Rà soát ' + losers.length + ' trạm đang lỗ',
+      detail: `Tổng lỗ ròng: <b>${fmtShort(Math.abs(totalLoss))} VND/tháng</b>. Top trạm lỗ nặng: ${losers.slice(0,5).map(s=>s.siteId+' ('+fmtShort(s.profit)+')').join(', ')}.`,
+      impact: `Loại bỏ / hợp nhất 50% trạm lỗ nặng có thể tiết kiệm ${fmtShort(Math.abs(totalLoss)*0.5)}/tháng`,
+      level: 'high'
+    });
+  }
+
+  // 3. Electricity outliers
+  const elecVals = state.cpRows.map(r => r.elecM1+r.elecM2).filter(v=>v>0);
+  if(elecVals.length){
+    const mean = elecVals.reduce((a,b)=>a+b,0)/elecVals.length;
+    const sd = Math.sqrt(elecVals.reduce((a,b)=>a+(b-mean)*(b-mean),0)/elecVals.length);
+    const outliers = state.cpRows.filter(r => (r.elecM1+r.elecM2)>mean+2*sd);
+    if(outliers.length){
+      recs.push({
+        title: 'Kiểm tra hoá đơn điện ' + outliers.length + ' trạm cao bất thường',
+        detail: `Tiền điện 2 tháng trung bình: ${fmtShort(mean)}. Trạm vượt 2σ: ${outliers.slice(0,5).map(r=>r.siteId).join(', ')}. Có thể do thiết bị hao điện hoặc đồng hồ sai.`,
+        impact: `Giảm 10–15% tiền điện = ~${fmtShort(outliers.reduce((a,b)=>a+b.elecM1+b.elecM2,0)*0.12)}/tháng`,
+        level: 'medium'
+      });
+    }
+  }
+
+  // 4. Low revenue/sub count (low utilization)
+  const lowUtil = stations.filter(s => s.avgSub>0 && s.avgSub<200 && s.cost>5e6).sort((a,b) => a.avgSub-b.avgSub);
+  if(lowUtil.length){
+    recs.push({
+      title: lowUtil.length + ' trạm có rất ít TB hoạt động — xem xét hợp nhất',
+      detail: `Các trạm dưới 200 TB hoạt động nhưng chi phí > 5tr/tháng: ${lowUtil.slice(0,5).map(s=>s.siteId+' ('+Math.round(s.avgSub)+' TB)').join(', ')}.`,
+      impact: `Hợp nhất / tắt 30% trạm = tiết kiệm ~${fmtShort(lowUtil.reduce((a,b)=>a+b.cost,0)*0.3)}/tháng`,
+      level: 'medium'
+    });
+  }
+
+  // 5. Bundle infrastructure vs standalone
+  const bundleStations = state.cpRows.filter(r => r.fireSafety>0 || r.infra>1e6);
+  const standaloneStations = state.cpRows.filter(r => r.fireSafety<=0 && r.infra<=1e5);
+  if(bundleStations.length && standaloneStations.length){
+    const avgBundle = bundleStations.reduce((a,b)=>a+(b.landRent+b.fireSafety+b.infra),0)/bundleStations.length;
+    const avgStd = standaloneStations.reduce((a,b)=>a+b.landRent,0)/standaloneStations.length;
+    recs.push({
+      title: 'Kiểm tra dịch vụ trong gói hạ tầng (PCCC + Hạ tầng)',
+      detail: `Có ${bundleStations.length} trạm dùng gói hạ tầng (TB ${fmtShort(avgBundle)}/tháng), ${standaloneStations.length} trạm chỉ thuê mặt bằng (TB ${fmtShort(avgStd)}/tháng). Chênh lệch ${fmtShort(avgBundle-avgStd)}/trạm/tháng.`,
+      impact: `Loại bỏ dịch vụ thừa cho 20% trạm = ~${fmtShort(bundleStations.length*0.2*(avgBundle-avgStd))}/tháng`,
+      level: 'medium'
+    });
+  }
+
+  // 6. Missing data quality
+  const missing = state.bcRows.filter(r => r.revenue>0 && r.costF1<=0);
+  if(missing.length){
+    const uniq = new Set(missing.map(r => r.siteId));
+    recs.push({
+      title: uniq.size + ' trạm thiếu dữ liệu chi phí trong báo cáo (file 1)',
+      detail: `Báo cáo trạm tháng không có "Chi phí trạm" cho ${uniq.size} site. VD: ${Array.from(uniq).slice(0,5).join(', ')}. Cần bổ sung để theo dõi P&L chính xác.`,
+      impact: 'Cải thiện độ chính xác báo cáo',
+      level: 'low'
+    });
+  }
+
+  return recs;
+}
+
+// ============= RENDER =============
+function renderKPIs(){
+  const s = state.stations;
+  const totalStations = s.length;
+  const totalRev = s.reduce((a,b)=>a+b.avgRev,0);
+  const totalCost = s.reduce((a,b)=>a+b.cost,0);
+  const profit = totalRev - totalCost;
+  const losers = s.filter(x => x.profit<0).length;
+  const winners = s.filter(x => x.profit>0).length;
+  const avgMargin = s.length ? s.reduce((a,b)=>a+b.margin,0)/s.length : 0;
+
+  $('#kpis').innerHTML = `
+    <div class="kpi"><div class="label">Tổng số trạm</div><div class="value">${totalStations.toLocaleString('vi-VN')}</div></div>
+    <div class="kpi"><div class="label">DT TB/tháng</div><div class="value">${fmtShort(totalRev)}</div></div>
+    <div class="kpi"><div class="label">CP TB/tháng</div><div class="value">${fmtShort(totalCost)}</div></div>
+    <div class="kpi ${profit>=0?'success':'danger'}"><div class="label">Lãi/Lỗ TB</div><div class="value">${fmtShort(profit)}</div></div>
+    <div class="kpi danger"><div class="label">Trạm lỗ</div><div class="value">${losers.toLocaleString('vi-VN')}</div><div class="delta neg">${fmtPct(losers/totalStations||0)} tổng</div></div>
+    <div class="kpi success"><div class="label">Biên LN TB</div><div class="value">${fmtPct(avgMargin)}</div></div>
+  `;
+}
+
+function destroyChart(name){ if(state.charts[name]) { state.charts[name].destroy(); delete state.charts[name]; } }
+
+function chartOpts(extra={}){
+  return Object.assign({
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{labels:{color:getCss('--text')}}, tooltip:{ callbacks:{ label:ctx => ctx.dataset.label+': '+fmtShort(ctx.parsed.y ?? ctx.parsed) }}},
+    scales:{ x:{ticks:{color:getCss('--muted')},grid:{color:getCss('--border')}}, y:{ticks:{color:getCss('--muted'),callback:v=>fmtShort(v)},grid:{color:getCss('--border')}}}
+  }, extra);
+}
+function getCss(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+function renderOverview(){
+  const s = state.stations.filter(x => x.avgRev>0);
+  const topProfit = [...s].sort((a,b)=>b.profit-a.profit).slice(0,10);
+  const topLoss = [...s].filter(x=>x.profit<0).sort((a,b)=>a.profit-b.profit).slice(0,10);
+
+  destroyChart('topProfit');
+  state.charts.topProfit = new Chart($('#chTopProfit'),{
+    type:'bar',
+    data:{labels:topProfit.map(x=>x.siteId),datasets:[{label:'Lãi (VND)',data:topProfit.map(x=>x.profit),backgroundColor:getCss('--success')}]},
+    options:chartOpts({indexAxis:'y'})
+  });
+  destroyChart('topLoss');
+  state.charts.topLoss = new Chart($('#chTopLoss'),{
+    type:'bar',
+    data:{labels:topLoss.map(x=>x.siteId),datasets:[{label:'Lỗ (VND)',data:topLoss.map(x=>x.profit),backgroundColor:getCss('--danger')}]},
+    options:chartOpts({indexAxis:'y'})
+  });
+
+  // Margin histogram
+  const bins = [-Infinity,-2,-1,-0.5,-0.25,0,0.25,0.5,0.75,1,Infinity];
+  const binLabels = ['<-200%','-200..-100%','-100..-50%','-50..-25%','-25..0%','0..25%','25..50%','50..75%','75..100%','>100%'];
+  const counts = new Array(binLabels.length).fill(0);
+  s.forEach(x => {
+    const m = x.margin;
+    for(let i=0;i<bins.length-1;i++){
+      if(m>=bins[i] && m<bins[i+1]){ counts[i]++; break;}
+    }
+  });
+  destroyChart('marginHist');
+  state.charts.marginHist = new Chart($('#chMarginHist'),{
+    type:'bar',
+    data:{labels:binLabels,datasets:[{label:'Số trạm',data:counts,backgroundColor:counts.map((c,i)=> i<5 ? getCss('--danger') : getCss('--success'))}]},
+    options:chartOpts({plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+' trạm'}}},scales:{y:{ticks:{color:getCss('--muted'),callback:v=>v},grid:{color:getCss('--border')}},x:{ticks:{color:getCss('--muted')},grid:{color:getCss('--border')}}}})
+  });
+}
+
+function renderRanking(){
+  // Populate filter selects
+  const wards = [...new Set(state.stations.map(s=>s.ward).filter(Boolean))].sort();
+  const types = [...new Set(state.stations.map(s=>s.type).filter(Boolean))].sort();
+  $('#filterWard').innerHTML = '<option value="">Tất cả phường ('+wards.length+')</option>' + wards.map(w=>`<option>${w}</option>`).join('');
+  $('#filterType').innerHTML = '<option value="">Tất cả loại trạm</option>' + types.map(t=>`<option>${t}</option>`).join('');
+  refreshRankTable();
+}
+
+function refreshRankTable(){
+  const q = ($('#searchStation').value||'').toLowerCase();
+  const ward = $('#filterWard').value;
+  const type = $('#filterType').value;
+  const status = $('#filterStatus').value;
+  let rows = state.stations.filter(s =>
+    (!q || s.siteId.toLowerCase().includes(q) || s.ward.toLowerCase().includes(q)) &&
+    (!ward || s.ward===ward) &&
+    (!type || s.type===type) &&
+    (!status || (status==='profit'?s.profit>=0:s.profit<0))
+  );
+  // sort
+  const k = state.sortKey, d = state.sortDir==='asc'?1:-1;
+  rows.sort((a,b) => {
+    const av=a[k], bv=b[k];
+    if(typeof av==='number') return (av-bv)*d;
+    return String(av||'').localeCompare(String(bv||''),'vi')*d;
+  });
+  // For "profit" desc by absolute loss when sorting asc, we want most negative first which is just asc
+  const tbody = $('#rankBody');
+  tbody.innerHTML = rows.slice(0,400).map(s => `
+    <tr>
+      <td><b>${s.siteId}</b></td>
+      <td>${s.ward}</td>
+      <td><span class="badge ${(s.type||'').toLowerCase().includes('macro')?'macro':(s.type||'').toLowerCase().includes('cran')?'cran':'moran'}">${s.type||'—'}</span></td>
+      <td class="num">${fmtShort(s.avgRev)}</td>
+      <td class="num">${fmtShort(s.cost)}</td>
+      <td class="num ${s.profit>=0?'pos':'neg'}">${fmtShort(s.profit)}</td>
+      <td class="num ${s.margin>=0?'pos':'neg'}">${fmtPct(s.margin)}</td>
+      <td class="num">${Math.round(s.avgSub).toLocaleString('vi-VN')}</td>
+    </tr>
+  `).join('');
+  $('#rankInfo').textContent = 'Hiển thị '+Math.min(rows.length,400)+' / '+rows.length+' trạm (giới hạn 400 để mượt). Tổng: '+state.stations.length+' trạm.';
+}
+
+function renderAnomalies(){
+  const anoms = findAnomalies().slice(0,80);
+  $('#anomBody').innerHTML = anoms.map(a => `
+    <tr>
+      <td><b>${a.siteId}</b></td>
+      <td>${a.category}</td>
+      <td class="num neg">${fmtVN(a.value)}</td>
+      <td class="num muted">${fmtVN(a.mean,0)}</td>
+      <td class="num">${a.z.toFixed(2)}</td>
+      <td><span class="badge ${a.z>4?'danger':a.z>3?'warn':'warn'}">${a.severity}</span></td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" class="empty">Không phát hiện bất thường (cần file 2)</td></tr>';
+
+  const diffs = findF1F2Diff().slice(0,60);
+  $('#diffBody').innerHTML = diffs.map(d => `
+    <tr>
+      <td><b>${d.siteId}</b></td>
+      <td class="num">${fmtShort(d.costF1)}</td>
+      <td class="num">${fmtShort(d.costF2)}</td>
+      <td class="num ${d.diff>0?'neg':'pos'}">${fmtShort(d.diff)}</td>
+      <td class="num ${d.pct>0?'neg':'pos'}">${fmtPct(d.pct)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" class="empty">Cần cả 2 file để so sánh</td></tr>';
+}
+
+function renderTrends(){
+  const m = state.byMonth;
+  if(!m.months || !m.months.length){
+    return;
+  }
+  const months = m.months;
+  destroyChart('trend');
+  state.charts.trend = new Chart($('#chTrend'),{
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[
+        {label:'Doanh thu', data:months.map(x=>m.data[x].revenue), borderColor:getCss('--success'), backgroundColor:'rgba(16,185,129,.1)', fill:true, tension:.3},
+        {label:'Chi phí (file 1)', data:months.map(x=>m.data[x].costF1), borderColor:getCss('--danger'), backgroundColor:'rgba(239,68,68,.1)', fill:true, tension:.3}
+      ]
+    },
+    options:chartOpts()
+  });
+
+  // Ward trend top 8
+  const wardMonth = {};
+  state.bcRows.forEach(r => {
+    if(!wardMonth[r.ward]) wardMonth[r.ward] = {};
+    if(!wardMonth[r.ward][r.month]) wardMonth[r.ward][r.month] = 0;
+    wardMonth[r.ward][r.month] += r.revenue;
+  });
+  const wardTotals = Object.entries(wardMonth).map(([w,d])=>({w,total:Object.values(d).reduce((a,b)=>a+b,0)}));
+  const topWards = wardTotals.sort((a,b)=>b.total-a.total).slice(0,8).map(x=>x.w);
+  const palette = ['--chart1','--chart2','--chart3','--chart4','--chart5','--chart6','--primary','--warn'];
+  destroyChart('wardTrend');
+  state.charts.wardTrend = new Chart($('#chWardTrend'),{
+    type:'line',
+    data:{
+      labels:months,
+      datasets: topWards.map((w,i)=>({
+        label:w, data:months.map(m2 => (wardMonth[w]||{})[m2]||0),
+        borderColor:getCss(palette[i%palette.length]),backgroundColor:'transparent',tension:.3
+      }))
+    },
+    options:chartOpts()
+  });
+}
+
+function renderCosts(){
+  // Pie of cost categories (sum across all stations)
+  if(!state.cpRows.length){ return; }
+  const sums = {
+    'Điện (T1+T2)': state.cpRows.reduce((a,b)=>a+b.elecM1+b.elecM2,0),
+    'Nhiên liệu': state.cpRows.reduce((a,b)=>a+b.fuelM1+b.fuelM2,0),
+    'Mặt bằng': state.cpRows.reduce((a,b)=>a+b.landRent*2,0),
+    'PCCC + Hạ tầng': state.cpRows.reduce((a,b)=>a+(b.fireSafety+b.infra)*2,0),
+    'Truyền dẫn': state.cpRows.reduce((a,b)=>a+b.transmission*2,0),
+    'Máy nổ': state.cpRows.reduce((a,b)=>a+b.generatorRent*2,0),
+    'VHKT BTS': state.cpRows.reduce((a,b)=>a+b.vhktBts*2,0),
+    'GPTS': state.cpRows.reduce((a,b)=>a+b.gpts,0)
+  };
+  const labels = Object.keys(sums);
+  const values = Object.values(sums);
+  destroyChart('costPie');
+  state.charts.costPie = new Chart($('#chCostPie'),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:values,backgroundColor:[getCss('--chart1'),getCss('--chart2'),getCss('--chart3'),getCss('--chart4'),getCss('--chart5'),getCss('--chart6'),getCss('--warn'),getCss('--primary')]}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:getCss('--text'),font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fmtShort(ctx.parsed)+' ('+(ctx.parsed/values.reduce((a,b)=>a+b,0)*100).toFixed(1)+'%)'}}}}
+  });
+
+  // Cost by type
+  const byType = {};
+  state.stations.forEach(s => {
+    if(!s.type) return;
+    if(!byType[s.type]) byType[s.type] = {sum:0,n:0};
+    byType[s.type].sum += s.cost;
+    byType[s.type].n += 1;
+  });
+  const types = Object.keys(byType);
+  const avgs = types.map(t => byType[t].sum/byType[t].n);
+  destroyChart('costByType');
+  state.charts.costByType = new Chart($('#chCostByType'),{
+    type:'bar',
+    data:{labels:types,datasets:[{label:'CP TB (VND/tháng)',data:avgs,backgroundColor:getCss('--primary')}]},
+    options:chartOpts()
+  });
+}
+
+function renderRecs(){
+  const recs = buildRecommendations();
+  const container = $('#recsContainer');
+  if(!recs.length){
+    container.innerHTML = '<div class="empty">Tải lên đủ dữ liệu để có khuyến nghị.</div>';
+    return;
+  }
+  container.innerHTML = recs.map((r,i) => `
+    <div class="rec">
+      <span class="rec-num">${i+1}</span>
+      <div class="rec-title">${r.title}</div>
+      <div>${r.detail}</div>
+      <div class="rec-impact ${r.level==='low'?'warn':''}">💰 ${r.impact}</div>
+    </div>
+  `).join('');
+}
+
+function renderNotices(){
+  const notices = [];
+  if(state.bcRows.length && !state.cpRows.length){
+    notices.push('Chỉ có dữ liệu File 1 — phân tích chi phí sẽ hạn chế. Tải thêm File 2 để có phân tích đầy đủ.');
+  }
+  if(!state.bcRows.length && state.cpRows.length){
+    notices.push('Chỉ có dữ liệu File 2 — không tính được lãi/lỗ. Tải thêm File 1 để có doanh thu.');
+  }
+  const months = state.byMonth.months||[];
+  if(months.length>2){
+    notices.push('File 1 có '+months.length+' tháng ('+months[0]+' → '+months[months.length-1]+'). File 2 chỉ có 2 tháng → P&L tính trung bình hoá.');
+  }
+  $('#notices').innerHTML = notices.map(n => `<div class="notice">⚠️ ${n}</div>`).join('');
+}
+
+function renderAll(){
+  renderNotices();
+  renderKPIs();
+  renderOverview();
+  renderRanking();
+  renderAnomalies();
+  renderTrends();
+  renderCosts();
+  renderRecs();
+}
+
+// ============= FILE LOADING =============
+function loadFile(file, kind){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsText(file,'utf-8');
+  });
+}
+
+async function handleFile(file, kind){
+  const text = await loadFile(file);
+  if(kind==='bc'){
+    state.bcRows = parseBC(text);
+    state.bcFile = file.name;
+    $('#nameBC').textContent = '✓ ' + file.name + ' — ' + state.bcRows.length + ' dòng';
+    $('#slotBC').classList.add('loaded');
+    localStorage.setItem('bts_bc', text);
+    localStorage.setItem('bts_bc_name', file.name);
+  } else {
+    state.cpRows = parseCP(text);
+    state.cpFile = file.name;
+    $('#nameCP').textContent = '✓ ' + file.name + ' — ' + state.cpRows.length + ' dòng';
+    $('#slotCP').classList.add('loaded');
+    localStorage.setItem('bts_cp', text);
+    localStorage.setItem('bts_cp_name', file.name);
+  }
+  if(state.bcRows.length || state.cpRows.length){
+    buildStations();
+    computeMonthly();
+    $('#uploadSection').style.display='none';
+    $('#dashboardSection').style.display='block';
+    $('#btnClear').style.display='inline-flex';
+    renderAll();
+  }
+}
+
+// ============= EVENTS =============
+$('#fileBC').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'bc'));
+$('#fileCP').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'cp'));
+
+$('#tabs').addEventListener('click', e => {
+  if(e.target.matches('.tab')){
+    $$('.tab').forEach(t=>t.classList.remove('active'));
+    e.target.classList.add('active');
+    $$('.tab-panel').forEach(p=>p.classList.remove('active'));
+    $('#panel-'+e.target.dataset.panel).classList.add('active');
+  }
+});
+
+$('#searchStation').addEventListener('input', refreshRankTable);
+$('#filterWard').addEventListener('change', refreshRankTable);
+$('#filterType').addEventListener('change', refreshRankTable);
+$('#filterStatus').addEventListener('change', refreshRankTable);
+
+document.addEventListener('click', e => {
+  if(e.target.matches('th[data-sort]')){
+    const k = e.target.dataset.sort;
+    if(state.sortKey===k){ state.sortDir = state.sortDir==='asc'?'desc':'asc'; }
+    else { state.sortKey = k; state.sortDir = (k==='siteId'||k==='ward'||k==='type')?'asc':'desc'; }
+    refreshRankTable();
+  }
+});
+
+$('#btnTheme').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', cur==='light'?'dark':'light');
+  $('#btnTheme').textContent = cur==='light'?'🌙':'☀️';
+  // Re-render charts to update colors
+  if(state.stations.length){ renderAll(); }
+});
+
+$('#btnReload').addEventListener('click', () => {
+  $('#uploadSection').style.display='block';
+  $('#dashboardSection').style.display='none';
+  $('#fileBC').value=''; $('#fileCP').value='';
+});
+
+$('#btnClear').addEventListener('click', () => {
+  if(!confirm('Xoá toàn bộ dữ liệu đã tải?')) return;
+  localStorage.removeItem('bts_bc'); localStorage.removeItem('bts_cp');
+  localStorage.removeItem('bts_bc_name'); localStorage.removeItem('bts_cp_name');
+  location.reload();
+});
+
+// Drag and drop
+['dragover','dragenter'].forEach(ev => $('#uploadSection').addEventListener(ev, e => {e.preventDefault();$('#uploadSection').classList.add('dragover');}));
+['dragleave','drop'].forEach(ev => $('#uploadSection').addEventListener(ev, e => {e.preventDefault();$('#uploadSection').classList.remove('dragover');}));
+$('#uploadSection').addEventListener('drop', async e => {
+  e.preventDefault();
+  for(const f of e.dataTransfer.files){
+    const n = f.name.toLowerCase();
+    if(n.includes('cp') || n.includes('duy trì') || n.includes('duy_tri') || n.includes('cost')){
+      await handleFile(f,'cp');
+    } else {
+      await handleFile(f,'bc');
+    }
+  }
+});
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  $('#installBanner').classList.add('show');
+});
+$('#btnInstall').addEventListener('click', async () => {
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  $('#installBanner').classList.remove('show');
+  deferredPrompt = null;
+});
+
+// Service worker
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// Restore from localStorage
+(function restore(){
+  const bc = localStorage.getItem('bts_bc');
+  const cp = localStorage.getItem('bts_cp');
+  if(bc){
+    state.bcRows = parseBC(bc);
+    state.bcFile = localStorage.getItem('bts_bc_name') || 'baocao.csv';
+    $('#nameBC').textContent = '✓ ' + state.bcFile + ' — ' + state.bcRows.length + ' dòng (đã lưu)';
+    $('#slotBC').classList.add('loaded');
+  }
+  if(cp){
+    state.cpRows = parseCP(cp);
+    state.cpFile = localStorage.getItem('bts_cp_name') || 'cp.csv';
+    $('#nameCP').textContent = '✓ ' + state.cpFile + ' — ' + state.cpRows.length + ' dòng (đã lưu)';
+    $('#slotCP').classList.add('loaded');
+  }
+  if(state.bcRows.length || state.cpRows.length){
+    buildStations(); computeMonthly();
+    $('#uploadSection').style.display='none';
+    $('#dashboardSection').style.display='block';
+    $('#btnClear').style.display='inline-flex';
+    renderAll();
+  }
+})();
+</script>
+</body>
+</html>
