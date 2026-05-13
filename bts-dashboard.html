@@ -125,6 +125,52 @@ tr:hover td{background:var(--card2)}
 .muted{color:var(--muted)}
 .notice{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fbbf24;padding:10px 12px;border-radius:10px;font-size:12px;margin-bottom:12px}
 
+/* New: Status pills for MTCL / Sim recommendation */
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.pill.good{background:rgba(16,185,129,.18);color:#34d399}
+.pill.warn{background:rgba(245,158,11,.18);color:#fbbf24}
+.pill.bad{background:rgba(239,68,68,.18);color:#fca5a5}
+.pill.neutral{background:rgba(148,163,184,.18);color:#cbd5e1}
+.pill.info{background:rgba(59,130,246,.18);color:#60a5fa}
+.pill.violet{background:rgba(168,85,247,.18);color:#c084fc}
+
+/* Two-column / three-column responsive grid */
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:780px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:780px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* Sell-recommendation cards */
+.sell-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--card2)}
+.sell-card.go{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.06)}
+.sell-card.nogo{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06)}
+.sell-card.maybe{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.06)}
+.sell-card h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.sell-card .meta{font-size:11px;color:var(--muted);margin-bottom:8px}
+.sell-card .reasons{font-size:12px;line-height:1.55}
+.sell-card .reasons li{margin-bottom:2px}
+
+/* Staff cards */
+.staff-card{border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--card)}
+.staff-card .name{font-weight:700;font-size:14px;margin-bottom:2px}
+.staff-card .role{font-size:11px;color:var(--muted);margin-bottom:10px}
+.staff-card .mini-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.staff-card .mk{background:var(--card2);padding:8px;border-radius:8px}
+.staff-card .mk-label{font-size:10px;color:var(--muted);text-transform:uppercase}
+.staff-card .mk-value{font-size:14px;font-weight:700;margin-top:2px}
+
+/* Threshold legend */
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted);margin-bottom:10px}
+.legend span b{color:var(--text)}
+
+/* Compact filter bar */
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.subnav button{padding:6px 11px;font-size:12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer}
+.subnav button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* Highlight row */
+tr.highlight td{background:rgba(59,130,246,.08)}
+
 /* Hide tab panels not active */
 .tab-panel{display:none}
 .tab-panel.active{display:block}
@@ -151,7 +197,8 @@ footer{margin-top:24px;padding:20px 4px;text-align:center;color:var(--muted);fon
     </div>
     <div class="actions">
       <button class="btn" id="btnTheme" title="Đổi giao diện">🌙</button>
-      <button class="btn" id="btnReload" title="Tải lại dữ liệu">↻ Tải lại CSV</button>
+      <button class="btn" id="btnExport" title="Xuất báo cáo Excel" style="display:none">⬇️ Excel</button>
+      <button class="btn" id="btnReload" title="Tải lại dữ liệu">↻ Tải lại</button>
       <button class="btn danger" id="btnClear" title="Xóa dữ liệu" style="display:none">Xóa</button>
     </div>
   </header>
@@ -174,8 +221,32 @@ footer{margin-top:24px;padding:20px 4px;text-align:center;color:var(--muted);fon
         <input type="file" id="fileCP" accept=".csv,text/csv">
         <div class="filename" id="nameCP"></div>
       </div>
+      <div class="file-slot" id="slotMT2">
+        <label>📡 File 3: MTCL Tháng 2</label>
+        <div class="hint">Mục tiêu chất lượng KPI (PRB, RSRP, Accessibility, Retainability, Throughput…)</div>
+        <input type="file" id="fileMT2" accept=".csv,.xlsx,.xls">
+        <div class="filename" id="nameMT2"></div>
+      </div>
+      <div class="file-slot" id="slotMT3">
+        <label>📡 File 4: MTCL Tháng 3</label>
+        <div class="hint">MTCL tháng 3 cùng định dạng. Hỗ trợ .csv & .xlsx.</div>
+        <input type="file" id="fileMT3" accept=".csv,.xlsx,.xls">
+        <div class="filename" id="nameMT3"></div>
+      </div>
+      <div class="file-slot" id="slotMT4">
+        <label>📡 File 5: MTCL Tháng 4</label>
+        <div class="hint">MTCL tháng 4 cùng định dạng. Hỗ trợ .csv & .xlsx.</div>
+        <input type="file" id="fileMT4" accept=".csv,.xlsx,.xls">
+        <div class="filename" id="nameMT4"></div>
+      </div>
+      <div class="file-slot" id="slotPC">
+        <label>👥 File 6: Phân công nhân sự</label>
+        <div class="hint">Site ID ↔ Nhân sự VHKT + thông tin CSHT, máy phát điện, DWDM/ILA, MC/AGG, truyền dẫn, hình thức thuê.</div>
+        <input type="file" id="filePC" accept=".csv,.xlsx,.xls">
+        <div class="filename" id="namePC"></div>
+      </div>
     </div>
-    <p style="margin-top:18px;font-size:12px"><span class="muted">Bạn có thể tải 1 hoặc cả 2 file. Phân tích đầy đủ nhất khi có cả hai.</span></p>
+    <p style="margin-top:18px;font-size:12px"><span class="muted">Có thể tải bất kỳ file nào — dashboard tự thích ứng. File MTCL & Phân công hỗ trợ cả .csv và .xlsx.</span></p>
   </section>
 
   <!-- Dashboard -->
@@ -190,7 +261,11 @@ footer{margin-top:24px;padding:20px 4px;text-align:center;color:var(--muted);fon
     <div class="tabs" id="tabs">
       <button class="tab active" data-panel="overview">📊 Tổng quan</button>
       <button class="tab" data-panel="ranking">🏆 Xếp hạng trạm</button>
-      <button class="tab" data-panel="anomalies">⚠️ Bất thường</button>
+      <button class="tab" data-panel="mtcl">📡 KPI / MTCL</button>
+      <button class="tab" data-panel="sim">🛒 Khuyến nghị bán Sim</button>
+      <button class="tab" data-panel="staff">👥 Theo nhân sự</button>
+      <button class="tab" data-panel="newsite">🆕 Trạm mới GLI</button>
+      <button class="tab" data-panel="anomalies">⚠️ Bất thường CP</button>
       <button class="tab" data-panel="trends">📈 Xu hướng</button>
       <button class="tab" data-panel="costs">🥧 Cơ cấu chi phí</button>
       <button class="tab" data-panel="recs">💡 Khuyến nghị</button>
@@ -245,6 +320,164 @@ footer{margin-top:24px;padding:20px 4px;text-align:center;color:var(--muted);fon
             </table>
           </div>
           <div style="font-size:11px;color:var(--muted);margin-top:8px" id="rankInfo"></div>
+        </div>
+      </div>
+
+      <!-- ========== KPI/MTCL PANEL ========== -->
+      <div class="tab-panel" id="panel-mtcl">
+        <div class="panel-section">
+          <h3>Tổng quan KPI chất lượng (MTCL) — tải vô tuyến, vùng phủ, lưu lượng</h3>
+          <div class="desc">Hiển thị khi đã upload file MTCL T2/T3/T4. Site GLI mới chưa có số liệu được tách riêng (tab Trạm mới GLI).</div>
+          <div class="legend" id="mtclLegend"></div>
+          <div class="kpis" id="mtclKpis" style="margin-top:6px"></div>
+        </div>
+        <div class="charts-grid">
+          <div class="panel-section">
+            <h3>Phân bố tải vô tuyến (PRB Util)</h3>
+            <div class="desc">Trạm tải cao &gt;80% là ứng viên KHÔNG bán thêm Sim. Trạm 30–70% là vùng tối ưu để đẩy bán.</div>
+            <div class="chart-wrap"><canvas id="chPrbHist"></canvas></div>
+          </div>
+          <div class="panel-section">
+            <h3>Phân bố vùng phủ (RSRP)</h3>
+            <div class="desc">RSRP càng âm càng yếu. ≥ -95 dBm là tốt.</div>
+            <div class="chart-wrap"><canvas id="chRsrpHist"></canvas></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <h3>Xu hướng KPI theo tháng (T2 → T4)</h3>
+          <div class="desc">Trung bình tỉnh — Accessibility, Retainability, Throughput, PRB.</div>
+          <div class="chart-wrap"><canvas id="chMtclTrend"></canvas></div>
+        </div>
+        <div class="panel-section">
+          <h3>Bảng KPI từng trạm</h3>
+          <div class="filter-bar">
+            <input type="text" id="mtclSearch" placeholder="🔍 Tìm Site ID hoặc phường…">
+            <select id="mtclMonth"><option value="">Tháng gần nhất</option></select>
+            <select id="mtclStatus"><option value="">Tất cả trạng thái</option><option value="good">Đạt KPI</option><option value="warn">Cảnh báo</option><option value="bad">Không đạt</option></select>
+          </div>
+          <div class="table-wrap" style="max-height:520px;overflow-y:auto">
+            <table id="mtclTable">
+              <thead><tr>
+                <th>Site ID</th><th>Phường</th>
+                <th class="num">PRB Util %</th>
+                <th class="num">RSRP (dBm)</th>
+                <th class="num">CQI</th>
+                <th class="num">Acc %</th>
+                <th class="num">Ret %</th>
+                <th class="num">Throughput (Mbps)</th>
+                <th class="num">Lưu lượng (GB)</th>
+                <th>Trạng thái</th>
+              </tr></thead>
+              <tbody id="mtclBody"></tbody>
+            </table>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px" id="mtclInfo"></div>
+        </div>
+      </div>
+
+      <!-- ========== SIM RECOMMENDATION PANEL ========== -->
+      <div class="tab-panel" id="panel-sim">
+        <div class="panel-section">
+          <h3>Khuyến nghị bán Sim / dịch vụ theo vùng phủ trạm</h3>
+          <div class="desc">Quy tắc tổng hợp 4 tiêu chí: <b>Tải vô tuyến</b> (PRB Util), <b>Vùng phủ</b> (RSRP/CQI), <b>KPI MTCL</b> (Acc/Ret/TP), <b>Xu hướng lưu lượng</b> (T2→T4).</div>
+          <div class="legend">
+            <span><span class="pill good">NÊN BÁN</span> Vùng phủ tốt + KPI đạt + còn dư tải</span>
+            <span><span class="pill warn">CÂN NHẮC</span> Đạt 1 phần — bán có chọn lọc</span>
+            <span><span class="pill bad">KHÔNG NÊN</span> Quá tải hoặc KPI kém / phủ sóng yếu</span>
+          </div>
+        </div>
+        <div class="kpis" id="simKpis"></div>
+        <div class="panel-section">
+          <h3>Lọc theo trạng thái & phường</h3>
+          <div class="filter-bar">
+            <input type="text" id="simSearch" placeholder="🔍 Site ID hoặc phường…">
+            <select id="simWard"><option value="">Tất cả phường</option></select>
+            <select id="simStatus">
+              <option value="">Tất cả</option>
+              <option value="go">NÊN BÁN</option>
+              <option value="maybe">CÂN NHẮC</option>
+              <option value="nogo">KHÔNG NÊN</option>
+            </select>
+          </div>
+          <div class="table-wrap" style="max-height:560px;overflow-y:auto">
+            <table id="simTable">
+              <thead><tr>
+                <th>Site ID</th><th>Phường</th>
+                <th>Khuyến nghị</th>
+                <th class="num">Điểm</th>
+                <th class="num">Tải %</th>
+                <th class="num">Vùng phủ</th>
+                <th>KPI</th>
+                <th>Xu hướng LL</th>
+                <th>Lý do chính</th>
+              </tr></thead>
+              <tbody id="simBody"></tbody>
+            </table>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px" id="simInfo"></div>
+        </div>
+      </div>
+
+      <!-- ========== STAFF PANEL ========== -->
+      <div class="tab-panel" id="panel-staff">
+        <div class="panel-section">
+          <h3>Tổng hợp theo nhân sự VHKT</h3>
+          <div class="desc">Yêu cầu file 6 (Phân công nhân sự). Mỗi nhân sự được tổng hợp: số trạm phụ trách, tỷ lệ đạt KPI, top trạm có vấn đề, lưu lượng & doanh thu, breakdown theo CSHT/máy phát điện/DWDM/MC-AGG/truyền dẫn/hình thức thuê.</div>
+          <div class="filter-bar">
+            <input type="text" id="staffSearch" placeholder="🔍 Tìm tên nhân sự…">
+            <select id="staffSort">
+              <option value="kpiBad">Sắp xếp: nhiều trạm vấn đề ↑</option>
+              <option value="kpiGood">Tỷ lệ KPI tốt ↑</option>
+              <option value="sites">Số trạm phụ trách ↓</option>
+              <option value="revenue">Doanh thu ↓</option>
+            </select>
+          </div>
+          <div id="staffGrid" class="grid2"></div>
+          <div class="empty" id="staffEmpty" style="display:none">Chưa có file Phân công nhân sự. Upload file 6 để xem.</div>
+        </div>
+        <div class="panel-section">
+          <h3>Chi tiết trạm theo nhân sự được chọn</h3>
+          <div class="desc">Click vào card nhân sự ở trên để xem chi tiết tại đây.</div>
+          <div id="staffDetail" class="empty">Chưa chọn nhân sự</div>
+        </div>
+        <div class="panel-section">
+          <h3>Breakdown hạ tầng theo nhân sự</h3>
+          <div class="desc">Số lượng trạm theo: loại CSHT, máy phát điện, node DWDM/ILA, node MC/AGG, loại truyền dẫn, hình thức thuê (Mặt bằng / CSHT cá nhân / XHH…).</div>
+          <div class="table-wrap" style="max-height:520px;overflow-y:auto">
+            <table id="infraTable">
+              <thead><tr>
+                <th>Nhân sự</th>
+                <th class="num">Tổng trạm</th>
+                <th class="num">CSHT BTS</th>
+                <th class="num">Máy phát điện</th>
+                <th class="num">DWDM/ILA</th>
+                <th class="num">MC/AGG</th>
+                <th>Truyền dẫn (top)</th>
+                <th>Hình thức thuê (top)</th>
+              </tr></thead>
+              <tbody id="infraBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== NEW SITE GLI PANEL ========== -->
+      <div class="tab-panel" id="panel-newsite">
+        <div class="panel-section">
+          <h3>Trạm mới (mã GLIxxx) — chưa có số liệu MTCL/CP</h3>
+          <div class="desc">Các site ID có tiền tố <code>GLI</code> đã được tách ra khỏi mọi phân tích KPI/CP. Theo dõi tại đây để bổ sung số liệu khi sẵn sàng.</div>
+          <div class="kpis" id="newSiteKpis"></div>
+          <div class="table-wrap" style="max-height:520px;overflow-y:auto;margin-top:10px">
+            <table id="newSiteTable">
+              <thead><tr>
+                <th>Site ID</th><th>Nguồn xuất hiện</th>
+                <th>Phường</th><th>Loại</th>
+                <th>Nhân sự VHKT</th>
+                <th>Ghi chú</th>
+              </tr></thead>
+              <tbody id="newSiteBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -334,6 +567,7 @@ footer{margin-top:24px;padding:20px 4px;text-align:center;color:var(--muted);fon
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ============= UTILS =============
 const $ = sel => document.querySelector(sel);
@@ -381,7 +615,28 @@ const state = {
   byMonth: {},    // month -> aggregates
   charts: {},
   bcFile: null, cpFile: null,
-  sortKey: 'profit', sortDir: 'asc'
+  sortKey: 'profit', sortDir: 'asc',
+  // MTCL (Quality target) per-station per-month
+  mtcl: { rows: [], byMonth: {} }, // rows: [{month, siteId, ward, prb, rsrp, cqi, acc, ret, tp, traffic, status}]
+  mt2File:null, mt3File:null, mt4File:null,
+  // Staff assignment + infra metadata
+  pcRows: [],     // [{siteId, staff, role, infraType, generator, dwdmIla, mcAgg, transmission, leaseForm, note}]
+  pcFile: null,
+  staffSelected: null,
+  newSites: []    // GLI prefix collection
+};
+
+// ============= THRESHOLDS (configurable) =============
+const TH = {
+  prbHigh: 80,      // >= 80% PRB Util => quá tải => không nên bán
+  prbLow: 30,       // < 30% PRB Util => dư tải nhiều
+  prbSweet: 70,     // 30..70 => vùng tối ưu để bán
+  rsrpGood: -95,    // >= -95 dBm tốt
+  rsrpBad: -110,    // <= -110 dBm xấu
+  cqiGood: 8,       // >= 8 tốt
+  accGood: 98,      // Accessibility >= 98%
+  retGood: 98,      // Retainability >= 98%
+  tpGood: 10        // Throughput >= 10 Mbps
 };
 
 // ============= PARSE =============
@@ -452,18 +707,208 @@ function parseCP(text){
   return data;
 }
 
+// ============= GENERIC TABLE READER (csv or xlsx) =============
+async function readTabularFile(file){
+  // returns {headers, rows} where rows are arrays of cells parallel to headers
+  const name = (file.name||'').toLowerCase();
+  let isXlsx = name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.xlsm');
+  // Detect xlsx by magic bytes (PK\x03\x04) even when file has .csv extension
+  if(!isXlsx){
+    const head = await file.slice(0,4).arrayBuffer();
+    const b = new Uint8Array(head);
+    if(b.length >= 4 && b[0] === 0x50 && b[1] === 0x4B && b[2] === 0x03 && b[3] === 0x04){
+      isXlsx = true;
+    }
+  }
+  if(isXlsx){
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    // Pick first non-empty sheet
+    let bestSheet = null, bestRows = null, bestLen = 0;
+    for(const sn of wb.SheetNames){
+      const ws = wb.Sheets[sn];
+      const arr = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+      if(arr.length > bestLen){ bestLen = arr.length; bestRows = arr; bestSheet = sn; }
+    }
+    return arrayRowsToTabular(bestRows||[]);
+  } else {
+    const text = await file.text();
+    // Try semicolon then comma then tab
+    let parsed = Papa.parse(text,{delimiter:';',skipEmptyLines:true});
+    if(parsed.data.length<2 || parsed.data[0].length<2){
+      parsed = Papa.parse(text,{skipEmptyLines:true});
+    }
+    if(parsed.data.length<2 || parsed.data[0].length<2){
+      parsed = Papa.parse(text,{delimiter:'\t',skipEmptyLines:true});
+    }
+    return arrayRowsToTabular(parsed.data);
+  }
+}
+
+function arrayRowsToTabular(rows){
+  if(!rows.length) return {headers:[], rows:[]};
+  // Find header row: first row where most cells are non-empty short strings
+  let hi = 0;
+  for(let i=0;i<Math.min(rows.length,15);i++){
+    const r = rows[i];
+    const nonEmpty = r.filter(c => c !== '' && c != null).length;
+    const hasSiteHint = r.some(c => /site\s*id|mã\s*trạm|cell|enodeb|gnb|trạm|cột/i.test(String(c||'')));
+    if(nonEmpty>=3 && hasSiteHint){ hi = i; break; }
+    if(nonEmpty >= 4 && r.every(c => String(c||'').length < 80)){ hi = i; break; }
+  }
+  const headers = rows[hi].map(c => String(c||'').trim());
+  const body = [];
+  for(let i=hi+1;i<rows.length;i++){
+    const r = rows[i];
+    if(!r || r.every(c => c==='' || c==null)) continue;
+    body.push(r);
+  }
+  return {headers, rows: body, headerIndex: hi};
+}
+
+function findCol(headers, patterns){
+  // Returns the index of the first header matching any of regex patterns (case-insensitive, accent-removed)
+  const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();
+  const H = headers.map(norm);
+  // Also normalize patterns
+  const normPat = p => {
+    if(typeof p === 'string') return new RegExp(norm(p));
+    // For RegExp: rewrite to accent-free version of source
+    return new RegExp(norm(p.source), p.flags);
+  };
+  for(const p of patterns){
+    const re = normPat(p);
+    for(let i=0;i<H.length;i++){ if(re.test(H[i])) return i; }
+  }
+  return -1;
+}
+
+// ============= MTCL PARSER (auto-detect columns) =============
+function parseMTCL(text_or_file_result, monthLabel){
+  // text_or_file_result is {headers, rows}
+  const {headers, rows} = text_or_file_result;
+  if(!headers.length) return [];
+  const idx = {
+    siteId:   findCol(headers, [/site\s*id/, /mã.*trạm/, /eci/, /cell\s*id/, /trạm/]),
+    cell:     findCol(headers, [/cellname|cell\s*name|tên\s*cell/]),
+    ward:     findCol(headers, [/phường|xã|quận|huyện/]),
+    prb:      findCol(headers, [/prb.*util|tải.*prb|prb.*usage|prb.*%|tải\s*vô\s*tuyến/]),
+    rsrp:     findCol(headers, [/rsrp/]),
+    cqi:      findCol(headers, [/cqi/]),
+    acc:      findCol(headers, [/acce?ssibility|rrc.*setup|tỉ.*lệ.*thiết.*lập|truy.*nhập/]),
+    ret:      findCol(headers, [/retainability|tỉ.*rớt|drop\s*call|rab.*drop|giữ\s*kết\s*nối/]),
+    tp:       findCol(headers, [/throughput|tốc.*độ|mbps|kbps|lưu\s*lượng.*kbps/]),
+    traffic:  findCol(headers, [/traffic|lưu\s*lượng|data.*gb|gb|volume/]),
+    handover: findCol(headers, [/handover|chuyển\s*giao/])
+  };
+  const out = [];
+  for(const r of rows){
+    const siteRaw = idx.siteId>=0 ? String(r[idx.siteId]||'').trim() : '';
+    if(!siteRaw) continue;
+    // siteId might include a cell suffix like XYZ123-1 → keep base
+    const siteId = siteRaw.split(/[_\- ]/)[0].trim();
+    out.push({
+      month: monthLabel,
+      siteId,
+      cell: idx.cell>=0 ? String(r[idx.cell]||'').trim() : '',
+      ward: idx.ward>=0 ? String(r[idx.ward]||'').trim() : '',
+      prb:      idx.prb>=0      ? parseVN(r[idx.prb])      : null,
+      rsrp:     idx.rsrp>=0     ? parseVN(r[idx.rsrp])     : null,
+      cqi:      idx.cqi>=0      ? parseVN(r[idx.cqi])      : null,
+      acc:      idx.acc>=0      ? parseVN(r[idx.acc])      : null,
+      ret:      idx.ret>=0      ? parseVN(r[idx.ret])      : null,
+      tp:       idx.tp>=0       ? parseVN(r[idx.tp])       : null,
+      traffic:  idx.traffic>=0  ? parseVN(r[idx.traffic])  : null,
+      handover: idx.handover>=0 ? parseVN(r[idx.handover]) : null
+    });
+  }
+  return out;
+}
+
+// Aggregate MTCL rows -> per-site per-month (avg across cells of the same site)
+function aggregateMtclBySite(rows){
+  const map = {};
+  for(const r of rows){
+    const k = r.month + '|' + r.siteId;
+    if(!map[k]) map[k] = {
+      month:r.month, siteId:r.siteId, ward:r.ward,
+      _prb:[], _rsrp:[], _cqi:[], _acc:[], _ret:[], _tp:[], _traffic:0, _cells:0
+    };
+    const m = map[k];
+    if(r.prb!=null && !isNaN(r.prb)) m._prb.push(r.prb);
+    if(r.rsrp!=null && !isNaN(r.rsrp) && r.rsrp!==0) m._rsrp.push(r.rsrp);
+    if(r.cqi!=null && !isNaN(r.cqi) && r.cqi!==0) m._cqi.push(r.cqi);
+    if(r.acc!=null && !isNaN(r.acc) && r.acc!==0) m._acc.push(r.acc);
+    if(r.ret!=null && !isNaN(r.ret) && r.ret!==0) m._ret.push(r.ret);
+    if(r.tp!=null && !isNaN(r.tp) && r.tp!==0) m._tp.push(r.tp);
+    if(r.traffic!=null && !isNaN(r.traffic)) m._traffic += r.traffic;
+    if(r.ward && !m.ward) m.ward = r.ward;
+    m._cells += 1;
+  }
+  const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
+  return Object.values(map).map(m => ({
+    month: m.month, siteId: m.siteId, ward: m.ward||'',
+    cells: m._cells,
+    prb: avg(m._prb), rsrp: avg(m._rsrp), cqi: avg(m._cqi),
+    acc: avg(m._acc), ret: avg(m._ret), tp: avg(m._tp),
+    traffic: m._traffic
+  }));
+}
+
+// ============= PHAN CONG NHAN SU PARSER =============
+function parsePC(table){
+  const {headers, rows} = table;
+  if(!headers.length) return [];
+  const idx = {
+    siteId:       findCol(headers, [/site\s*id|mã\s*trạm/]),
+    staff:        findCol(headers, [/nhân\s*sự|cán\s*bộ|người\s*quản|người\s*phụ\s*trách|qlvt|vhkt|tên/]),
+    role:         findCol(headers, [/vai trò|chức\s*vụ|nhiệm\s*vụ/]),
+    infraType:    findCol(headers, [/loại\s*cs?ht|cs?ht|hạ\s*tầng|loại\s*trạm/]),
+    generator:    findCol(headers, [/máy\s*phát|máy\s*nổ|generator|phụ\s*trợ/]),
+    dwdmIla:      findCol(headers, [/dwdm|ila/]),
+    mcAgg:        findCol(headers, [/mc\/agg|mc-agg|agg|metro/]),
+    transmission: findCol(headers, [/truyền\s*dẫn|tx|transmission/]),
+    leaseForm:    findCol(headers, [/hình\s*thức|thuê|xhh|mặt\s*bằng|cá\s*nhân/]),
+    ward:         findCol(headers, [/phường|xã|quận|huyện/]),
+    note:         findCol(headers, [/ghi\s*chú|note|remark/])
+  };
+  const out = [];
+  for(const r of rows){
+    const sid = idx.siteId>=0 ? String(r[idx.siteId]||'').trim() : '';
+    if(!sid) continue;
+    out.push({
+      siteId: sid,
+      staff:        idx.staff>=0        ? String(r[idx.staff]||'').trim()        : '',
+      role:         idx.role>=0         ? String(r[idx.role]||'').trim()         : '',
+      infraType:    idx.infraType>=0    ? String(r[idx.infraType]||'').trim()    : '',
+      generator:    idx.generator>=0    ? String(r[idx.generator]||'').trim()    : '',
+      dwdmIla:      idx.dwdmIla>=0      ? String(r[idx.dwdmIla]||'').trim()      : '',
+      mcAgg:        idx.mcAgg>=0        ? String(r[idx.mcAgg]||'').trim()        : '',
+      transmission: idx.transmission>=0 ? String(r[idx.transmission]||'').trim() : '',
+      leaseForm:    idx.leaseForm>=0    ? String(r[idx.leaseForm]||'').trim()    : '',
+      ward:         idx.ward>=0         ? String(r[idx.ward]||'').trim()         : '',
+      note:         idx.note>=0         ? String(r[idx.note]||'').trim()         : ''
+    });
+  }
+  return out;
+}
+
 // ============= ANALYZE =============
 function buildStations(){
-  // Group bcRows by siteId
+  // Group bcRows by siteId, excluding GLI new sites
   const bcBySite = {};
   state.bcRows.forEach(r => {
+    if(isGliSite(r.siteId)) return;
     if(!bcBySite[r.siteId]) bcBySite[r.siteId] = [];
     bcBySite[r.siteId].push(r);
   });
   const cpBySite = {};
-  state.cpRows.forEach(r => { cpBySite[r.siteId] = r; });
+  state.cpRows.forEach(r => {
+    if(isGliSite(r.siteId)) return;
+    cpBySite[r.siteId] = r;
+  });
 
-  // Union of all site ids
+  // Union of all site ids (excluding GLI)
   const ids = new Set([...Object.keys(bcBySite), ...Object.keys(cpBySite)]);
   const stations = [];
   ids.forEach(id => {
@@ -667,6 +1112,217 @@ function buildRecommendations(){
   }
 
   return recs;
+}
+
+// ============= GLI FILTER (new sites without data) =============
+function isGliSite(id){
+  return /^GLI/i.test(String(id||'').trim());
+}
+
+// Collect all new GLI sites from every data source
+function collectNewSites(){
+  const map = {};
+  const add = (id, source, extra) => {
+    if(!isGliSite(id)) return;
+    if(!map[id]) map[id] = {siteId:id, sources:new Set(), ward:'', type:'', staff:'', note:''};
+    map[id].sources.add(source);
+    if(extra){
+      if(extra.ward && !map[id].ward) map[id].ward = extra.ward;
+      if(extra.type && !map[id].type) map[id].type = extra.type;
+      if(extra.staff && !map[id].staff) map[id].staff = extra.staff;
+      if(extra.note && !map[id].note) map[id].note = extra.note;
+    }
+  };
+  state.bcRows.forEach(r => add(r.siteId, 'BC', {ward:r.ward, type:r.type}));
+  state.cpRows.forEach(r => add(r.siteId, 'CP', {}));
+  state.mtcl.rows.forEach(r => add(r.siteId, 'MTCL', {ward:r.ward}));
+  state.pcRows.forEach(r => add(r.siteId, 'PC', {staff:r.staff, note:'Đã phân công'}));
+  return Object.values(map).map(o => ({...o, sources: Array.from(o.sources).join(', ')}));
+}
+
+// Compute KPI status from MTCL fields for a given month-aggregate
+function kpiStatus(m){
+  if(!m) return {status:'unknown', score:0, reasons:[]};
+  const reasons = [];
+  let score = 0, total = 0;
+  // PRB
+  if(m.prb!=null){
+    total++;
+    if(m.prb < TH.prbHigh) score++; else reasons.push('Tải PRB cao ('+m.prb.toFixed(0)+'%)');
+  }
+  // RSRP
+  if(m.rsrp!=null){
+    total++;
+    if(m.rsrp >= TH.rsrpGood) score++;
+    else if(m.rsrp <= TH.rsrpBad){ reasons.push('RSRP yếu ('+m.rsrp.toFixed(0)+' dBm)'); }
+    else { score += 0.5; }
+  }
+  // CQI
+  if(m.cqi!=null){
+    total++;
+    if(m.cqi >= TH.cqiGood) score++; else reasons.push('CQI thấp ('+m.cqi.toFixed(1)+')');
+  }
+  // Accessibility & Retainability (handle both 0..1 and 0..100 scale)
+  const norm = v => v==null ? null : (v <= 1 ? v*100 : v);
+  const acc = norm(m.acc), ret = norm(m.ret);
+  if(acc!=null){ total++; if(acc >= TH.accGood) score++; else reasons.push('Accessibility kém ('+acc.toFixed(2)+'%)'); }
+  if(ret!=null){ total++; if(ret >= TH.retGood) score++; else reasons.push('Retainability kém ('+ret.toFixed(2)+'%)'); }
+  if(m.tp!=null){ total++; if(m.tp >= TH.tpGood) score++; else reasons.push('Throughput thấp ('+m.tp.toFixed(1)+' Mbps)'); }
+  const ratio = total ? score/total : 0;
+  let status = 'unknown';
+  if(total === 0) status = 'unknown';
+  else if(ratio >= 0.8) status = 'good';
+  else if(ratio >= 0.5) status = 'warn';
+  else status = 'bad';
+  return {status, score:ratio, reasons};
+}
+
+// Compute traffic trend across months for a station
+function trafficTrend(siteId){
+  const months = state.mtcl.byMonth.months || [];
+  if(months.length < 2) return {direction:'flat', delta:0, label:'—'};
+  const series = months.map(m => {
+    const k = m + '|' + siteId;
+    const o = state.mtcl.byMonth.map[k];
+    return o && o.traffic ? o.traffic : 0;
+  });
+  const first = series[0], last = series[series.length-1];
+  if(first === 0 && last === 0) return {direction:'flat', delta:0, label:'—'};
+  const delta = first === 0 ? 1 : (last - first)/first;
+  let direction = 'flat';
+  if(delta > 0.1) direction = 'up';
+  else if(delta < -0.1) direction = 'down';
+  return {direction, delta, label: direction==='up'?'Tăng':direction==='down'?'Giảm':'Ổn định'};
+}
+
+// SIM SELL RECOMMENDATION (combines 4 criteria)
+function simRecommendation(siteId){
+  if(isGliSite(siteId)) return null;
+  // Take latest MTCL month
+  const months = state.mtcl.byMonth.months || [];
+  let latest = null;
+  for(let i=months.length-1;i>=0;i--){
+    const o = state.mtcl.byMonth.map[months[i]+'|'+siteId];
+    if(o){ latest = o; break; }
+  }
+  if(!latest) return null;
+  const kpi = kpiStatus(latest);
+  const trend = trafficTrend(siteId);
+  const prb = latest.prb;
+  const rsrp = latest.rsrp;
+
+  // Score the four criteria
+  let pts = 0; // higher = more likely "should sell"
+  const why = [];
+  // 1. Load: low/mid load => +, high load => -
+  if(prb!=null){
+    if(prb >= TH.prbHigh){ pts -= 2; why.push('PRB ' + prb.toFixed(0) + '% — quá tải'); }
+    else if(prb >= TH.prbSweet){ pts -= 0.5; why.push('PRB ' + prb.toFixed(0) + '% — sắp đầy'); }
+    else if(prb >= TH.prbLow){ pts += 2; why.push('PRB ' + prb.toFixed(0) + '% — vùng tối ưu để bán'); }
+    else { pts += 1.5; why.push('PRB thấp ' + prb.toFixed(0) + '% — còn dư nhiều tải'); }
+  }
+  // 2. Coverage: RSRP good +, bad -
+  if(rsrp!=null){
+    if(rsrp >= TH.rsrpGood){ pts += 1.5; why.push('Vùng phủ tốt (RSRP ' + rsrp.toFixed(0) + ' dBm)'); }
+    else if(rsrp <= TH.rsrpBad){ pts -= 1.5; why.push('Vùng phủ yếu (RSRP ' + rsrp.toFixed(0) + ' dBm)'); }
+  }
+  // 3. KPI MTCL
+  if(kpi.status==='good'){ pts += 1.5; why.push('KPI đạt chuẩn'); }
+  else if(kpi.status==='bad'){ pts -= 1.5; why.push('KPI không đạt: ' + (kpi.reasons[0]||'')); }
+  // 4. Trend
+  if(trend.direction==='up'){ pts += 1; why.push('Lưu lượng đang tăng (' + (trend.delta*100).toFixed(0) + '%)'); }
+  else if(trend.direction==='down'){ pts -= 0.5; why.push('Lưu lượng giảm'); }
+
+  let label, badge;
+  if(pts >= 3){ label='NÊN BÁN'; badge='go'; }
+  else if(pts >= 0.5){ label='CÂN NHẮC'; badge='maybe'; }
+  else { label='KHÔNG NÊN'; badge='nogo'; }
+
+  return {
+    siteId, ward: latest.ward,
+    prb, rsrp, cqi:latest.cqi,
+    acc: latest.acc, ret: latest.ret, tp: latest.tp,
+    trafficGB: latest.traffic,
+    kpiStatus: kpi.status, trend: trend.label, trendDir: trend.direction,
+    points: pts, label, badge,
+    reasons: why
+  };
+}
+
+// Build sim recommendation array for all stations
+function buildSimRecs(){
+  const ids = new Set();
+  state.mtcl.rows.forEach(r => { if(!isGliSite(r.siteId)) ids.add(r.siteId); });
+  const arr = [];
+  ids.forEach(id => {
+    const o = simRecommendation(id);
+    if(o) arr.push(o);
+  });
+  return arr.sort((a,b)=> b.points - a.points);
+}
+
+// ============= STAFF AGGREGATION =============
+function aggregateByStaff(){
+  // Returns array of {staff, sites:[...], stats:{...}, infra:{...}}
+  if(!state.pcRows.length) return [];
+  const map = {};
+  state.pcRows.forEach(p => {
+    if(!p.staff) return;
+    if(isGliSite(p.siteId)) return; // exclude GLI new sites from analysis
+    if(!map[p.staff]) map[p.staff] = {
+      staff:p.staff, role:p.role||'', sites:[],
+      infraCount:{}, generatorCount:{}, dwdmCount:{}, mcaggCount:{},
+      transmissionCount:{}, leaseCount:{}
+    };
+    map[p.staff].sites.push(p);
+    const inc = (obj, k) => { if(k && k !== '') obj[k] = (obj[k]||0)+1; };
+    inc(map[p.staff].infraCount, p.infraType);
+    inc(map[p.staff].generatorCount, p.generator);
+    inc(map[p.staff].dwdmCount, p.dwdmIla);
+    inc(map[p.staff].mcaggCount, p.mcAgg);
+    inc(map[p.staff].transmissionCount, p.transmission);
+    inc(map[p.staff].leaseCount, p.leaseForm);
+  });
+  // Cross-reference with station revenue & KPI
+  const sims = buildSimRecs();
+  const simById = {}; sims.forEach(s => simById[s.siteId] = s);
+  const stById = {}; state.stations.forEach(s => stById[s.siteId] = s);
+  Object.values(map).forEach(staff => {
+    let revenue = 0, cost = 0, traffic = 0;
+    let kpiGood = 0, kpiWarn = 0, kpiBad = 0, kpiUnknown = 0;
+    let nogo = 0, maybe = 0, go = 0;
+    const problems = [];
+    staff.sites.forEach(p => {
+      const st = stById[p.siteId];
+      const sim = simById[p.siteId];
+      if(st){ revenue += st.avgRev||0; cost += st.cost||0; }
+      if(sim){
+        traffic += sim.trafficGB||0;
+        if(sim.kpiStatus==='good') kpiGood++;
+        else if(sim.kpiStatus==='warn') kpiWarn++;
+        else if(sim.kpiStatus==='bad') kpiBad++;
+        else kpiUnknown++;
+        if(sim.badge==='go') go++;
+        else if(sim.badge==='maybe') maybe++;
+        else if(sim.badge==='nogo') nogo++;
+        if(sim.kpiStatus==='bad' || sim.badge==='nogo'){
+          problems.push({siteId:p.siteId, ward:p.ward||sim.ward, reason: sim.reasons[0]||''});
+        }
+      } else {
+        kpiUnknown++;
+      }
+    });
+    const totalKpi = kpiGood + kpiWarn + kpiBad;
+    staff.stats = {
+      totalSites: staff.sites.length,
+      kpiGood, kpiWarn, kpiBad, kpiUnknown,
+      kpiGoodPct: totalKpi ? kpiGood/totalKpi : 0,
+      revenue, cost, profit: revenue-cost, traffic,
+      go, maybe, nogo,
+      problems: problems.slice(0,5)
+    };
+  });
+  return Object.values(map);
 }
 
 // ============= RENDER =============
@@ -906,6 +1562,365 @@ function renderRecs(){
   `).join('');
 }
 
+// ============= RENDER MTCL =============
+function renderMtcl(){
+  const months = state.mtcl.byMonth.months || [];
+  if(!months.length){
+    $('#mtclKpis').innerHTML = '<div class="empty" style="grid-column:1/-1">Chưa có file MTCL. Upload file 3/4/5 để bắt đầu.</div>';
+    $('#mtclLegend').innerHTML = '';
+    $('#mtclBody').innerHTML = '';
+    return;
+  }
+  // Legend
+  $('#mtclLegend').innerHTML = `
+    <span>Ngưỡng: <b>PRB &lt;${TH.prbHigh}%</b>, <b>RSRP ≥ ${TH.rsrpGood} dBm</b>, <b>Acc/Ret ≥ ${TH.accGood}%</b>, <b>TP ≥ ${TH.tpGood} Mbps</b></span>
+    <span>Có dữ liệu: <b>${months.length}</b> tháng (${months.join(' → ')})</span>
+  `;
+
+  // Latest month KPIs
+  const latest = months[months.length-1];
+  const rows = Object.values(state.mtcl.byMonth.map).filter(o => o.month===latest && !isGliSite(o.siteId));
+  const totalSites = rows.length;
+  let good=0,warn=0,bad=0;
+  let prbAvg=0, prbN=0, accAvg=0, accN=0, totalTraffic=0;
+  rows.forEach(r => {
+    const st = kpiStatus(r);
+    if(st.status==='good') good++;
+    else if(st.status==='warn') warn++;
+    else if(st.status==='bad') bad++;
+    if(r.prb!=null){ prbAvg += r.prb; prbN++; }
+    if(r.acc!=null){ const v = r.acc<=1?r.acc*100:r.acc; accAvg += v; accN++; }
+    if(r.traffic) totalTraffic += r.traffic;
+  });
+  prbAvg = prbN ? prbAvg/prbN : 0;
+  accAvg = accN ? accAvg/accN : 0;
+
+  $('#mtclKpis').innerHTML = `
+    <div class="kpi"><div class="label">Trạm có MTCL</div><div class="value">${totalSites}</div></div>
+    <div class="kpi success"><div class="label">Đạt KPI</div><div class="value">${good}</div><div class="delta pos">${fmtPct(good/totalSites||0)}</div></div>
+    <div class="kpi warn"><div class="label">Cảnh báo</div><div class="value">${warn}</div></div>
+    <div class="kpi danger"><div class="label">Không đạt</div><div class="value">${bad}</div></div>
+    <div class="kpi"><div class="label">PRB Util TB</div><div class="value">${prbAvg.toFixed(1)}%</div></div>
+    <div class="kpi"><div class="label">Lưu lượng tháng</div><div class="value">${fmtShort(totalTraffic)} GB</div></div>
+  `;
+
+  // PRB histogram
+  const prbBins = [0,10,20,30,40,50,60,70,80,90,100];
+  const prbLabels = ['0-10','10-20','20-30','30-40','40-50','50-60','60-70','70-80','80-90','90+'];
+  const prbCounts = new Array(prbLabels.length).fill(0);
+  rows.forEach(r => {
+    if(r.prb==null) return;
+    for(let i=0;i<prbBins.length-1;i++){
+      if(r.prb >= prbBins[i] && r.prb < prbBins[i+1]){ prbCounts[i]++; break; }
+    }
+    if(r.prb >= 90) prbCounts[prbCounts.length-1]++;
+  });
+  destroyChart('prbHist');
+  state.charts.prbHist = new Chart($('#chPrbHist'), {
+    type:'bar',
+    data:{labels:prbLabels, datasets:[{label:'Số trạm', data:prbCounts,
+      backgroundColor:prbCounts.map((_,i) => i>=8 ? getCss('--danger') : i>=7 ? getCss('--warn') : i<=2 ? getCss('--chart6') : getCss('--success'))
+    }]},
+    options:chartOpts({plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' trạm'}}},scales:{y:{ticks:{color:getCss('--muted'),callback:v=>v},grid:{color:getCss('--border')}},x:{ticks:{color:getCss('--muted')},grid:{color:getCss('--border')}}}})
+  });
+
+  // RSRP histogram
+  const rsrpBins = [-130,-120,-110,-105,-100,-95,-90,-85,-80,-70];
+  const rsrpLabels = ['<-120','-120..-110','-110..-105','-105..-100','-100..-95','-95..-90','-90..-85','-85..-80','>-80'];
+  const rsrpCounts = new Array(rsrpLabels.length).fill(0);
+  rows.forEach(r => {
+    if(r.rsrp==null) return;
+    for(let i=0;i<rsrpBins.length-1;i++){
+      if(r.rsrp >= rsrpBins[i] && r.rsrp < rsrpBins[i+1]){ rsrpCounts[i]++; break; }
+    }
+  });
+  destroyChart('rsrpHist');
+  state.charts.rsrpHist = new Chart($('#chRsrpHist'), {
+    type:'bar',
+    data:{labels:rsrpLabels, datasets:[{label:'Số trạm', data:rsrpCounts,
+      backgroundColor:rsrpCounts.map((_,i) => i<=2 ? getCss('--danger') : i<=4 ? getCss('--warn') : getCss('--success'))
+    }]},
+    options:chartOpts({plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' trạm'}}},scales:{y:{ticks:{color:getCss('--muted'),callback:v=>v},grid:{color:getCss('--border')}},x:{ticks:{color:getCss('--muted')},grid:{color:getCss('--border')}}}})
+  });
+
+  // MTCL trend across months
+  const datasets = [];
+  const series = {
+    prb: months.map(m => avgField(m, 'prb')),
+    acc: months.map(m => avgField(m, 'acc', true)),
+    ret: months.map(m => avgField(m, 'ret', true)),
+    tp:  months.map(m => avgField(m, 'tp'))
+  };
+  destroyChart('mtclTrend');
+  state.charts.mtclTrend = new Chart($('#chMtclTrend'), {
+    type:'line',
+    data:{labels:months, datasets:[
+      {label:'PRB Util (%)', data:series.prb, borderColor:getCss('--chart1'), tension:.3, yAxisID:'y'},
+      {label:'Accessibility (%)', data:series.acc, borderColor:getCss('--chart2'), tension:.3, yAxisID:'y'},
+      {label:'Retainability (%)', data:series.ret, borderColor:getCss('--chart3'), tension:.3, yAxisID:'y'},
+      {label:'Throughput (Mbps)', data:series.tp, borderColor:getCss('--chart5'), tension:.3, yAxisID:'y2'}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:getCss('--text')}}, tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y==null?'—':ctx.parsed.y.toFixed(2))}}},
+      scales:{
+        x:{ticks:{color:getCss('--muted')},grid:{color:getCss('--border')}},
+        y:{type:'linear',position:'left',ticks:{color:getCss('--muted')},grid:{color:getCss('--border')}},
+        y2:{type:'linear',position:'right',ticks:{color:getCss('--muted')},grid:{display:false}}
+      }}
+  });
+
+  // Month selector
+  $('#mtclMonth').innerHTML = '<option value="">Tháng gần nhất ('+latest+')</option>' + months.map(m=>`<option value="${m}">${m}</option>`).join('');
+  refreshMtclTable();
+}
+
+function avgField(month, field, pctScale){
+  let s=0, n=0;
+  Object.values(state.mtcl.byMonth.map).forEach(o => {
+    if(o.month!==month || isGliSite(o.siteId)) return;
+    if(o[field]==null) return;
+    let v = o[field];
+    if(pctScale && v<=1) v *= 100;
+    s += v; n++;
+  });
+  return n ? s/n : null;
+}
+
+function refreshMtclTable(){
+  const q = ($('#mtclSearch').value||'').toLowerCase();
+  const mo = $('#mtclMonth').value;
+  const stf = $('#mtclStatus').value;
+  const months = state.mtcl.byMonth.months || [];
+  const useMonth = mo || months[months.length-1];
+  let rows = Object.values(state.mtcl.byMonth.map).filter(o => o.month===useMonth && !isGliSite(o.siteId));
+  if(q) rows = rows.filter(r => r.siteId.toLowerCase().includes(q) || (r.ward||'').toLowerCase().includes(q));
+  const enriched = rows.map(r => ({...r, ...kpiStatus(r)}));
+  if(stf) rows = enriched.filter(r => r.status===stf); else rows = enriched;
+  rows.sort((a,b) => a.score-b.score);
+  const body = $('#mtclBody');
+  body.innerHTML = rows.slice(0,500).map(r => {
+    const accV = r.acc==null?null:(r.acc<=1?r.acc*100:r.acc);
+    const retV = r.ret==null?null:(r.ret<=1?r.ret*100:r.ret);
+    const cls = r.status==='good'?'good':r.status==='warn'?'warn':r.status==='bad'?'bad':'neutral';
+    return `<tr>
+      <td><b>${r.siteId}</b></td>
+      <td>${r.ward||'—'}</td>
+      <td class="num ${r.prb!=null&&r.prb>=TH.prbHigh?'neg':r.prb!=null&&r.prb<TH.prbLow?'pos':''}">${r.prb==null?'—':r.prb.toFixed(1)+'%'}</td>
+      <td class="num ${r.rsrp!=null&&r.rsrp<=TH.rsrpBad?'neg':r.rsrp!=null&&r.rsrp>=TH.rsrpGood?'pos':''}">${r.rsrp==null?'—':r.rsrp.toFixed(0)}</td>
+      <td class="num">${r.cqi==null?'—':r.cqi.toFixed(1)}</td>
+      <td class="num ${accV!=null&&accV<TH.accGood?'neg':''}">${accV==null?'—':accV.toFixed(2)}</td>
+      <td class="num ${retV!=null&&retV<TH.retGood?'neg':''}">${retV==null?'—':retV.toFixed(2)}</td>
+      <td class="num">${r.tp==null?'—':r.tp.toFixed(1)}</td>
+      <td class="num">${r.traffic?fmtShort(r.traffic):'—'}</td>
+      <td><span class="pill ${cls}">${r.status==='good'?'ĐẠT':r.status==='warn'?'CẢNH BÁO':r.status==='bad'?'KHÔNG ĐẠT':'—'}</span></td>
+    </tr>`;
+  }).join('');
+  $('#mtclInfo').textContent = 'Hiển thị '+Math.min(rows.length,500)+' / '+rows.length+' trạm tháng '+useMonth;
+}
+
+// ============= RENDER SIM REC =============
+function renderSim(){
+  const recs = buildSimRecs();
+  if(!recs.length){
+    $('#simKpis').innerHTML = '<div class="empty" style="grid-column:1/-1">Chưa đủ dữ liệu MTCL để khuyến nghị. Upload file 3/4/5.</div>';
+    $('#simBody').innerHTML = '';
+    return;
+  }
+  const go = recs.filter(r=>r.badge==='go').length;
+  const maybe = recs.filter(r=>r.badge==='maybe').length;
+  const nogo = recs.filter(r=>r.badge==='nogo').length;
+  $('#simKpis').innerHTML = `
+    <div class="kpi success"><div class="label">NÊN BÁN</div><div class="value">${go}</div><div class="delta pos">${fmtPct(go/recs.length)}</div></div>
+    <div class="kpi warn"><div class="label">CÂN NHẮC</div><div class="value">${maybe}</div></div>
+    <div class="kpi danger"><div class="label">KHÔNG NÊN</div><div class="value">${nogo}</div><div class="delta neg">${fmtPct(nogo/recs.length)}</div></div>
+    <div class="kpi"><div class="label">Tổng trạm đánh giá</div><div class="value">${recs.length}</div></div>
+  `;
+  // Ward select
+  const wards = [...new Set(recs.map(r => r.ward).filter(Boolean))].sort();
+  $('#simWard').innerHTML = '<option value="">Tất cả phường ('+wards.length+')</option>' + wards.map(w=>`<option>${w}</option>`).join('');
+  refreshSimTable();
+}
+
+function refreshSimTable(){
+  const recs = buildSimRecs();
+  const q = ($('#simSearch').value||'').toLowerCase();
+  const w = $('#simWard').value;
+  const s = $('#simStatus').value;
+  let rows = recs;
+  if(q) rows = rows.filter(r => r.siteId.toLowerCase().includes(q) || (r.ward||'').toLowerCase().includes(q));
+  if(w) rows = rows.filter(r => r.ward === w);
+  if(s) rows = rows.filter(r => r.badge === s);
+  const body = $('#simBody');
+  body.innerHTML = rows.slice(0,500).map(r => {
+    const pill = r.badge==='go'?'good':r.badge==='maybe'?'warn':'bad';
+    const kpiPill = r.kpiStatus==='good'?'good':r.kpiStatus==='warn'?'warn':r.kpiStatus==='bad'?'bad':'neutral';
+    const trendPill = r.trendDir==='up'?'good':r.trendDir==='down'?'bad':'neutral';
+    return `<tr>
+      <td><b>${r.siteId}</b></td>
+      <td>${r.ward||'—'}</td>
+      <td><span class="pill ${pill}">${r.label}</span></td>
+      <td class="num">${r.points.toFixed(1)}</td>
+      <td class="num ${r.prb!=null&&r.prb>=TH.prbHigh?'neg':r.prb!=null&&r.prb<TH.prbLow?'pos':''}">${r.prb==null?'—':r.prb.toFixed(0)+'%'}</td>
+      <td class="num">${r.rsrp==null?'—':r.rsrp.toFixed(0)+' dBm'}</td>
+      <td><span class="pill ${kpiPill}">${r.kpiStatus==='good'?'Đạt':r.kpiStatus==='warn'?'Cảnh báo':r.kpiStatus==='bad'?'Kém':'—'}</span></td>
+      <td><span class="pill ${trendPill}">${r.trend}</span></td>
+      <td style="white-space:normal;max-width:280px;font-size:11px">${r.reasons.slice(0,2).join('; ')}</td>
+    </tr>`;
+  }).join('');
+  $('#simInfo').textContent = 'Hiển thị '+Math.min(rows.length,500)+' / '+rows.length+' trạm';
+}
+
+// ============= RENDER STAFF =============
+function renderStaff(){
+  const staffs = aggregateByStaff();
+  const grid = $('#staffGrid');
+  if(!staffs.length){
+    grid.innerHTML = '';
+    $('#staffEmpty').style.display = 'block';
+    $('#infraBody').innerHTML = '';
+    return;
+  }
+  $('#staffEmpty').style.display = 'none';
+  refreshStaffGrid();
+  // Infra breakdown table
+  $('#infraBody').innerHTML = staffs.map(s => {
+    const topOf = obj => {
+      const entries = Object.entries(obj).sort((a,b) => b[1]-a[1]).slice(0,3);
+      return entries.length ? entries.map(([k,v]) => k+' ('+v+')').join('<br>') : '—';
+    };
+    const countOf = obj => Object.values(obj).reduce((a,b)=>a+b,0);
+    return `<tr>
+      <td><b>${s.staff}</b></td>
+      <td class="num">${s.stats.totalSites}</td>
+      <td class="num">${countOf(s.infraCount)}</td>
+      <td class="num">${countOf(s.generatorCount)}</td>
+      <td class="num">${countOf(s.dwdmCount)}</td>
+      <td class="num">${countOf(s.mcaggCount)}</td>
+      <td style="white-space:normal;max-width:200px;font-size:11px">${topOf(s.transmissionCount)}</td>
+      <td style="white-space:normal;max-width:200px;font-size:11px">${topOf(s.leaseCount)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function refreshStaffGrid(){
+  const staffs = aggregateByStaff();
+  const q = ($('#staffSearch').value||'').toLowerCase();
+  const sort = $('#staffSort').value;
+  let arr = q ? staffs.filter(s => s.staff.toLowerCase().includes(q)) : staffs;
+  arr.sort((a,b) => {
+    if(sort==='kpiBad') return (b.stats.kpiBad+b.stats.nogo) - (a.stats.kpiBad+a.stats.nogo);
+    if(sort==='kpiGood') return b.stats.kpiGoodPct - a.stats.kpiGoodPct;
+    if(sort==='sites') return b.stats.totalSites - a.stats.totalSites;
+    if(sort==='revenue') return b.stats.revenue - a.stats.revenue;
+    return 0;
+  });
+  $('#staffGrid').innerHTML = arr.map(s => {
+    const action = staffAction(s);
+    return `
+      <div class="staff-card" data-staff="${s.staff}" style="cursor:pointer">
+        <div class="name">${s.staff}</div>
+        <div class="role">${s.role||''} · ${s.stats.totalSites} trạm phụ trách</div>
+        <div class="mini-kpis">
+          <div class="mk"><div class="mk-label">Đạt KPI</div><div class="mk-value" style="color:var(--success)">${s.stats.kpiGood}/${s.stats.totalSites} (${fmtPct(s.stats.kpiGoodPct)})</div></div>
+          <div class="mk"><div class="mk-label">Trạm vấn đề</div><div class="mk-value" style="color:var(--danger)">${s.stats.kpiBad + s.stats.nogo}</div></div>
+          <div class="mk"><div class="mk-label">DT TB/tháng</div><div class="mk-value">${fmtShort(s.stats.revenue)}</div></div>
+          <div class="mk"><div class="mk-label">Lưu lượng</div><div class="mk-value">${fmtShort(s.stats.traffic)} GB</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5">
+          <b style="color:var(--text)">Khuyến nghị:</b> ${action}
+        </div>
+      </div>
+    `;
+  }).join('');
+  // Click handler
+  $$('.staff-card').forEach(el => el.addEventListener('click', () => {
+    state.staffSelected = el.dataset.staff;
+    renderStaffDetail();
+  }));
+}
+
+function staffAction(s){
+  const probs = s.stats.kpiBad + s.stats.nogo;
+  const goodPct = s.stats.kpiGoodPct;
+  if(probs >= 5) return `⚠️ Ưu tiên xử lý ${probs} trạm có KPI kém/không nên bán Sim`;
+  if(goodPct >= 0.85) return `✅ Trạm khoẻ — phối hợp KD đẩy mạnh bán Sim ở ${s.stats.go} điểm NÊN BÁN`;
+  if(goodPct >= 0.6) return `🔧 ${probs} trạm cần tối ưu để giảm tải/cải thiện phủ sóng`;
+  return `🚨 Cần rà soát tổng thể — chỉ ${fmtPct(goodPct)} trạm đạt KPI`;
+}
+
+function renderStaffDetail(){
+  const sname = state.staffSelected;
+  if(!sname){ $('#staffDetail').innerHTML = '<div class="empty">Chưa chọn nhân sự</div>'; return; }
+  const staffs = aggregateByStaff();
+  const s = staffs.find(x => x.staff === sname);
+  if(!s){ $('#staffDetail').innerHTML = '<div class="empty">Không tìm thấy</div>'; return; }
+  const sims = buildSimRecs();
+  const simById = {}; sims.forEach(x => simById[x.siteId] = x);
+  const stById = {}; state.stations.forEach(x => stById[x.siteId] = x);
+  const sites = s.sites.map(p => {
+    const sim = simById[p.siteId];
+    const st = stById[p.siteId];
+    return {...p, sim, st};
+  });
+  // Build per-site table
+  $('#staffDetail').innerHTML = `
+    <div style="margin-bottom:10px"><b>${s.staff}</b> · ${s.stats.totalSites} trạm · DT ${fmtShort(s.stats.revenue)}/tháng · Lãi ${fmtShort(s.stats.profit)}</div>
+    <div class="table-wrap" style="max-height:420px;overflow-y:auto">
+      <table>
+        <thead><tr>
+          <th>Site ID</th><th>Phường</th>
+          <th>CSHT</th><th>Truyền dẫn</th><th>Hình thức thuê</th>
+          <th class="num">PRB</th><th class="num">RSRP</th>
+          <th>KPI</th><th>Sim</th>
+          <th class="num">DT</th><th class="num">Lãi</th>
+        </tr></thead>
+        <tbody>
+          ${sites.map(x => {
+            const kpi = x.sim ? x.sim.kpiStatus : 'unknown';
+            const kpiPill = kpi==='good'?'good':kpi==='warn'?'warn':kpi==='bad'?'bad':'neutral';
+            const simPill = x.sim?.badge==='go'?'good':x.sim?.badge==='maybe'?'warn':x.sim?.badge==='nogo'?'bad':'neutral';
+            return `<tr>
+              <td><b>${x.siteId}</b></td>
+              <td>${x.ward||x.sim?.ward||'—'}</td>
+              <td>${x.infraType||'—'}</td>
+              <td>${x.transmission||'—'}</td>
+              <td>${x.leaseForm||'—'}</td>
+              <td class="num">${x.sim?.prb!=null?x.sim.prb.toFixed(0)+'%':'—'}</td>
+              <td class="num">${x.sim?.rsrp!=null?x.sim.rsrp.toFixed(0):'—'}</td>
+              <td><span class="pill ${kpiPill}">${kpi==='good'?'Đạt':kpi==='warn'?'WN':kpi==='bad'?'Kém':'—'}</span></td>
+              <td><span class="pill ${simPill}">${x.sim?.label||'—'}</span></td>
+              <td class="num">${x.st?fmtShort(x.st.avgRev):'—'}</td>
+              <td class="num ${x.st&&x.st.profit<0?'neg':'pos'}">${x.st?fmtShort(x.st.profit):'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ============= RENDER NEW GLI SITES =============
+function renderNewSites(){
+  const arr = collectNewSites();
+  state.newSites = arr;
+  $('#newSiteKpis').innerHTML = `
+    <div class="kpi"><div class="label">Tổng trạm GLI mới</div><div class="value">${arr.length}</div></div>
+    <div class="kpi"><div class="label">Đã có trong báo cáo trạm</div><div class="value">${arr.filter(x=>x.sources.includes('BC')).length}</div></div>
+    <div class="kpi"><div class="label">Đã có trong chi phí</div><div class="value">${arr.filter(x=>x.sources.includes('CP')).length}</div></div>
+    <div class="kpi"><div class="label">Đã có trong phân công</div><div class="value">${arr.filter(x=>x.sources.includes('PC')).length}</div></div>
+  `;
+  $('#newSiteBody').innerHTML = arr.map(x => `
+    <tr>
+      <td><b>${x.siteId}</b></td>
+      <td><span class="pill info">${x.sources}</span></td>
+      <td>${x.ward||'—'}</td>
+      <td>${x.type||'—'}</td>
+      <td>${x.staff||'—'}</td>
+      <td>${x.note||'Chưa có số liệu MTCL/CP — đã loại khỏi phân tích'}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" class="empty">Không phát hiện trạm GLI mới trong dữ liệu hiện tại.</td></tr>';
+}
+
 function renderNotices(){
   const notices = [];
   if(state.bcRows.length && !state.cpRows.length){
@@ -918,6 +1933,21 @@ function renderNotices(){
   if(months.length>2){
     notices.push('File 1 có '+months.length+' tháng ('+months[0]+' → '+months[months.length-1]+'). File 2 chỉ có 2 tháng → P&L tính trung bình hoá.');
   }
+  // GLI new sites notice
+  const gliCount = collectNewSites().length;
+  if(gliCount > 0){
+    notices.push('Đã tách <b>'+gliCount+'</b> trạm GLI mới ra khỏi phân tích chính (xem tab 🆕 Trạm mới GLI).');
+  }
+  // MTCL notice
+  const mtclMonths = state.mtcl.byMonth.months || [];
+  if(!mtclMonths.length){
+    notices.push('Chưa có MTCL — upload file 3/4/5 để có phân tích KPI & khuyến nghị bán Sim.');
+  } else {
+    notices.push('Đã tải MTCL '+mtclMonths.length+' tháng: '+mtclMonths.join(', '));
+  }
+  if(!state.pcRows.length){
+    notices.push('Chưa có Phân công nhân sự — upload file 6 để có view theo nhân sự.');
+  }
   $('#notices').innerHTML = notices.map(n => `<div class="notice">⚠️ ${n}</div>`).join('');
 }
 
@@ -926,10 +1956,23 @@ function renderAll(){
   renderKPIs();
   renderOverview();
   renderRanking();
+  renderMtcl();
+  renderSim();
+  renderStaff();
+  renderNewSites();
   renderAnomalies();
   renderTrends();
   renderCosts();
   renderRecs();
+}
+
+// Build MTCL byMonth index after parsing
+function buildMtclIndex(){
+  const sites = aggregateMtclBySite(state.mtcl.rows);
+  const map = {};
+  sites.forEach(s => { map[s.month + '|' + s.siteId] = s; });
+  const months = [...new Set(sites.map(s => s.month))].sort();
+  state.mtcl.byMonth = {months, map};
 }
 
 // ============= FILE LOADING =============
@@ -943,28 +1986,46 @@ function loadFile(file, kind){
 }
 
 async function handleFile(file, kind){
-  const text = await loadFile(file);
   if(kind==='bc'){
+    const text = await loadFile(file);
     state.bcRows = parseBC(text);
     state.bcFile = file.name;
     $('#nameBC').textContent = '✓ ' + file.name + ' — ' + state.bcRows.length + ' dòng';
     $('#slotBC').classList.add('loaded');
-    localStorage.setItem('bts_bc', text);
-    localStorage.setItem('bts_bc_name', file.name);
-  } else {
+    try { localStorage.setItem('bts_bc', text); localStorage.setItem('bts_bc_name', file.name); } catch(e){}
+  } else if(kind==='cp'){
+    const text = await loadFile(file);
     state.cpRows = parseCP(text);
     state.cpFile = file.name;
     $('#nameCP').textContent = '✓ ' + file.name + ' — ' + state.cpRows.length + ' dòng';
     $('#slotCP').classList.add('loaded');
-    localStorage.setItem('bts_cp', text);
-    localStorage.setItem('bts_cp_name', file.name);
+    try { localStorage.setItem('bts_cp', text); localStorage.setItem('bts_cp_name', file.name); } catch(e){}
+  } else if(kind==='mt2' || kind==='mt3' || kind==='mt4'){
+    const table = await readTabularFile(file);
+    const monthMap = {mt2:'02/2026', mt3:'03/2026', mt4:'04/2026'};
+    const month = monthMap[kind];
+    // Replace existing month's data
+    state.mtcl.rows = state.mtcl.rows.filter(r => r.month !== month);
+    const parsed = parseMTCL(table, month);
+    state.mtcl.rows = state.mtcl.rows.concat(parsed);
+    state['_file_'+kind] = file.name;
+    $('#name'+kind.toUpperCase()).textContent = '✓ ' + file.name + ' — ' + parsed.length + ' dòng MTCL';
+    $('#slot'+kind.toUpperCase()).classList.add('loaded');
+    buildMtclIndex();
+  } else if(kind==='pc'){
+    const table = await readTabularFile(file);
+    state.pcRows = parsePC(table);
+    state.pcFile = file.name;
+    $('#namePC').textContent = '✓ ' + file.name + ' — ' + state.pcRows.length + ' bản ghi phân công';
+    $('#slotPC').classList.add('loaded');
   }
-  if(state.bcRows.length || state.cpRows.length){
+  if(state.bcRows.length || state.cpRows.length || state.mtcl.rows.length || state.pcRows.length){
     buildStations();
     computeMonthly();
     $('#uploadSection').style.display='none';
     $('#dashboardSection').style.display='block';
     $('#btnClear').style.display='inline-flex';
+    $('#btnExport').style.display='inline-flex';
     renderAll();
   }
 }
@@ -972,6 +2033,200 @@ async function handleFile(file, kind){
 // ============= EVENTS =============
 $('#fileBC').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'bc'));
 $('#fileCP').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'cp'));
+$('#fileMT2').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'mt2'));
+$('#fileMT3').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'mt3'));
+$('#fileMT4').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'mt4'));
+$('#filePC').addEventListener('change', e => e.target.files[0] && handleFile(e.target.files[0],'pc'));
+
+// MTCL panel filters
+['mtclSearch','mtclMonth','mtclStatus'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', refreshMtclTable);
+  if(el) el.addEventListener('change', refreshMtclTable);
+});
+
+// SIM panel filters
+['simSearch','simWard','simStatus'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', refreshSimTable);
+  if(el) el.addEventListener('change', refreshSimTable);
+});
+
+// Staff panel filters
+['staffSearch','staffSort'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', refreshStaffGrid);
+  if(el) el.addEventListener('change', refreshStaffGrid);
+});
+
+// Export Excel button
+$('#btnExport').addEventListener('click', exportExcelReport);
+
+function exportExcelReport(){
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Tổng hợp theo trạm
+  const stationSheet = state.stations.map(s => {
+    const sim = simRecommendation(s.siteId);
+    const latest = sim ? sim : null;
+    return {
+      'Site ID': s.siteId,
+      'Phường': s.ward,
+      'Loại': s.type,
+      'Tháng có DL': s.months,
+      'Doanh thu TB (VND)': Math.round(s.avgRev),
+      'Chi phí TB (VND)': Math.round(s.cost),
+      'Lãi/Lỗ TB (VND)': Math.round(s.profit),
+      'Biên %': (s.margin*100).toFixed(1),
+      'TB hoạt động': Math.round(s.avgSub),
+      'Data GB TB/tháng': Math.round(s.avgData),
+      'PRB Util %': latest && latest.prb!=null ? latest.prb.toFixed(1) : '',
+      'RSRP (dBm)': latest && latest.rsrp!=null ? latest.rsrp.toFixed(0) : '',
+      'CQI': latest && latest.cqi!=null ? latest.cqi.toFixed(1) : '',
+      'Acc %': latest && latest.acc!=null ? (latest.acc<=1?latest.acc*100:latest.acc).toFixed(2) : '',
+      'Ret %': latest && latest.ret!=null ? (latest.ret<=1?latest.ret*100:latest.ret).toFixed(2) : '',
+      'Throughput Mbps': latest && latest.tp!=null ? latest.tp.toFixed(1) : '',
+      'KPI Status': latest ? latest.kpiStatus : '',
+      'Xu hướng LL': latest ? latest.trend : '',
+      'Khuyến nghị Sim': latest ? latest.label : '',
+      'Điểm': latest ? latest.points.toFixed(1) : '',
+      'Lý do': latest ? latest.reasons.join('; ') : ''
+    };
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stationSheet), 'Tong hop tram');
+
+  // Sheet 2: Khuyến nghị bán Sim
+  const sims = buildSimRecs();
+  const simSheet = sims.map(r => ({
+    'Site ID': r.siteId,
+    'Phường': r.ward,
+    'Khuyến nghị': r.label,
+    'Điểm': r.points.toFixed(2),
+    'PRB %': r.prb!=null?r.prb.toFixed(1):'',
+    'RSRP (dBm)': r.rsrp!=null?r.rsrp.toFixed(0):'',
+    'CQI': r.cqi!=null?r.cqi.toFixed(1):'',
+    'KPI': r.kpiStatus,
+    'Xu hướng LL': r.trend,
+    'Lưu lượng GB': r.trafficGB?Math.round(r.trafficGB):'',
+    'Lý do': r.reasons.join('; ')
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(simSheet), 'Khuyen nghi ban Sim');
+
+  // Sheet 3: KPI MTCL chi tiết (mỗi tháng 1 dòng)
+  const mtcl = Object.values(state.mtcl.byMonth.map||{}).filter(o=>!isGliSite(o.siteId)).map(o => ({
+    'Tháng': o.month,
+    'Site ID': o.siteId,
+    'Phường': o.ward,
+    'Số cell': o.cells,
+    'PRB %': o.prb!=null?o.prb.toFixed(1):'',
+    'RSRP (dBm)': o.rsrp!=null?o.rsrp.toFixed(0):'',
+    'CQI': o.cqi!=null?o.cqi.toFixed(1):'',
+    'Accessibility %': o.acc!=null?(o.acc<=1?o.acc*100:o.acc).toFixed(2):'',
+    'Retainability %': o.ret!=null?(o.ret<=1?o.ret*100:o.ret).toFixed(2):'',
+    'Throughput Mbps': o.tp!=null?o.tp.toFixed(2):'',
+    'Lưu lượng GB': o.traffic?Math.round(o.traffic):''
+  }));
+  if(mtcl.length){
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mtcl), 'KPI MTCL chi tiet');
+  }
+
+  // Sheet 4: Theo nhân sự
+  const staffs = aggregateByStaff();
+  const staffSheet = staffs.map(s => {
+    const topOf = obj => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>k+' ('+v+')').join('; ');
+    return {
+      'Nhân sự': s.staff,
+      'Vai trò': s.role,
+      'Tổng trạm': s.stats.totalSites,
+      'KPI đạt': s.stats.kpiGood,
+      'KPI cảnh báo': s.stats.kpiWarn,
+      'KPI kém': s.stats.kpiBad,
+      'KPI không xác định': s.stats.kpiUnknown,
+      '% KPI đạt': (s.stats.kpiGoodPct*100).toFixed(1),
+      'NÊN BÁN': s.stats.go,
+      'CÂN NHẮC': s.stats.maybe,
+      'KHÔNG NÊN': s.stats.nogo,
+      'DT TB (VND)': Math.round(s.stats.revenue),
+      'CP TB (VND)': Math.round(s.stats.cost),
+      'Lãi (VND)': Math.round(s.stats.profit),
+      'Lưu lượng GB': Math.round(s.stats.traffic),
+      'CSHT (top)': topOf(s.infraCount),
+      'Máy phát điện (top)': topOf(s.generatorCount),
+      'DWDM/ILA (top)': topOf(s.dwdmCount),
+      'MC/AGG (top)': topOf(s.mcaggCount),
+      'Truyền dẫn (top)': topOf(s.transmissionCount),
+      'Hình thức thuê (top)': topOf(s.leaseCount),
+      'Khuyến nghị hành động': staffAction(s)
+    };
+  });
+  if(staffSheet.length){
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(staffSheet), 'Theo nhan su');
+  }
+
+  // Sheet 5: Phân công chi tiết
+  if(state.pcRows.length){
+    const pcSheet = state.pcRows.map(r => ({
+      'Site ID': r.siteId,
+      'Nhân sự': r.staff,
+      'Vai trò': r.role,
+      'Phường': r.ward,
+      'Loại CSHT': r.infraType,
+      'Máy phát điện': r.generator,
+      'DWDM/ILA': r.dwdmIla,
+      'MC/AGG': r.mcAgg,
+      'Truyền dẫn': r.transmission,
+      'Hình thức thuê': r.leaseForm,
+      'Ghi chú': r.note,
+      'Là GLI mới?': isGliSite(r.siteId) ? 'Có' : ''
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pcSheet), 'Phan cong chi tiet');
+  }
+
+  // Sheet 6: Trạm mới GLI
+  const newSites = collectNewSites();
+  if(newSites.length){
+    const gliSheet = newSites.map(x => ({
+      'Site ID': x.siteId,
+      'Xuất hiện ở': x.sources,
+      'Phường': x.ward,
+      'Loại': x.type,
+      'Nhân sự VHKT': x.staff,
+      'Ghi chú': x.note || 'Chưa có số liệu MTCL/CP — đã loại khỏi phân tích chính'
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(gliSheet), 'Tram moi GLI');
+  }
+
+  // Sheet 7: Bất thường chi phí (z-score)
+  const anoms = findAnomalies().slice(0,200);
+  if(anoms.length){
+    const anomSheet = anoms.map(a => ({
+      'Site ID': a.siteId,
+      'Loại chi phí': a.category,
+      'Giá trị (VND)': Math.round(a.value),
+      'Trung bình (VND)': Math.round(a.mean),
+      'Z-score': a.z.toFixed(2),
+      'Mức độ': a.severity
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(anomSheet), 'Bat thuong CP');
+  }
+
+  // Sheet 8: Ngưỡng đánh giá
+  const thSheet = [
+    {'Chỉ số':'PRB Util cao (KHÔNG NÊN bán)', 'Ngưỡng':'≥ '+TH.prbHigh+'%'},
+    {'Chỉ số':'PRB Util thấp (còn dư tải)', 'Ngưỡng':'< '+TH.prbLow+'%'},
+    {'Chỉ số':'PRB vùng tối ưu để bán', 'Ngưỡng':TH.prbLow+'%..'+TH.prbSweet+'%'},
+    {'Chỉ số':'RSRP tốt', 'Ngưỡng':'≥ '+TH.rsrpGood+' dBm'},
+    {'Chỉ số':'RSRP yếu', 'Ngưỡng':'≤ '+TH.rsrpBad+' dBm'},
+    {'Chỉ số':'CQI tốt', 'Ngưỡng':'≥ '+TH.cqiGood},
+    {'Chỉ số':'Accessibility đạt', 'Ngưỡng':'≥ '+TH.accGood+'%'},
+    {'Chỉ số':'Retainability đạt', 'Ngưỡng':'≥ '+TH.retGood+'%'},
+    {'Chỉ số':'Throughput đạt', 'Ngưỡng':'≥ '+TH.tpGood+' Mbps'}
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(thSheet), 'Nguong danh gia');
+
+  const fname = 'BTS_BaoCao_PhanTich_'+(new Date().toISOString().slice(0,10))+'.xlsx';
+  XLSX.writeFile(wb, fname);
+}
 
 $('#tabs').addEventListener('click', e => {
   if(e.target.matches('.tab')){
@@ -1014,6 +2269,9 @@ $('#btnClear').addEventListener('click', () => {
   if(!confirm('Xoá toàn bộ dữ liệu đã tải?')) return;
   localStorage.removeItem('bts_bc'); localStorage.removeItem('bts_cp');
   localStorage.removeItem('bts_bc_name'); localStorage.removeItem('bts_cp_name');
+  // Reset MTCL & PC in-memory (they are not persisted because xlsx blobs are big)
+  state.mtcl = {rows:[], byMonth:{}};
+  state.pcRows = [];
   location.reload();
 });
 
@@ -1024,9 +2282,20 @@ $('#uploadSection').addEventListener('drop', async e => {
   e.preventDefault();
   for(const f of e.dataTransfer.files){
     const n = f.name.toLowerCase();
-    if(n.includes('cp') || n.includes('duy trì') || n.includes('duy_tri') || n.includes('cost')){
+    if(/phân công|phan cong|assignment|nhân sự|nhan su/i.test(n)){
+      await handleFile(f,'pc');
+    } else if(/mtcl.*(?:t|tháng|thang)\s*2|mtcl.*02|mtcl.*feb/i.test(n)){
+      await handleFile(f,'mt2');
+    } else if(/mtcl.*(?:t|tháng|thang)\s*3|mtcl.*03|mtcl.*mar/i.test(n)){
+      await handleFile(f,'mt3');
+    } else if(/mtcl.*(?:t|tháng|thang)\s*4|mtcl.*04|mtcl.*apr/i.test(n)){
+      await handleFile(f,'mt4');
+    } else if(n.includes('cp') || n.includes('duy trì') || n.includes('duy_tri') || n.includes('cost')){
       await handleFile(f,'cp');
+    } else if(/báo cáo trạm|baocaotram|bc/i.test(n)){
+      await handleFile(f,'bc');
     } else {
+      // default to bc
       await handleFile(f,'bc');
     }
   }
@@ -1073,6 +2342,7 @@ if('serviceWorker' in navigator && location.protocol !== 'file:'){
     $('#uploadSection').style.display='none';
     $('#dashboardSection').style.display='block';
     $('#btnClear').style.display='inline-flex';
+    $('#btnExport').style.display='inline-flex';
     renderAll();
   }
 })();

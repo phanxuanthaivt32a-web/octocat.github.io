@@ -1,81 +1,112 @@
-# Dashboard Trạm BTS — Hướng dẫn sử dụng
+# Dashboard Trạm BTS — Hướng dẫn cài đặt trên Android
 
-## File trong gói
+## Các file cần thiết (trong thư mục `outputs`)
 
 | File | Mục đích |
 |---|---|
-| `bts-dashboard.html` | **File chính.** Mở file này trong trình duyệt là chạy được ngay. |
-| `manifest.webmanifest` | Khai báo PWA (tên app, icon…) — chỉ cần khi cài như app. |
-| `sw.js` | Service worker — cache offline khi cài PWA. |
-| `icon.svg` | Icon app. |
+| `bts-dashboard.html` | **File chính** — mở là chạy được |
+| `manifest.webmanifest` | Cấu hình PWA (tên, icon…) |
+| `sw.js` | Service worker — cache offline |
+| `icon.svg` | Icon app |
 
-## Cách 1 — Dùng nhanh, không cài app (Khuyến nghị thử trước)
+**Quan trọng:** cần upload **cả 4 file** lên cùng một thư mục online thì PWA mới hoạt động.
 
-1. Mở `bts-dashboard.html` bằng Chrome / Edge / Safari trên máy tính HOẶC điện thoại.
-2. Bấm chọn **2 file CSV** đã export từ Excel:
-   - File 1: Báo cáo trạm (`baocaotramthang_*.csv`)
-   - File 2: Chi phí duy trì trạm (`CP duy trì trạm…csv`)
-3. Dashboard hiện ra với 6 tab phân tích.
-4. Dữ liệu được lưu trong trình duyệt (localStorage) — lần sau mở lại không cần upload nữa.
+---
 
-**Tất cả xử lý chạy trên máy bạn. Không có dữ liệu nào gửi ra ngoài.**
+## CÁCH 1 — Nhanh nhất (5 phút): Netlify Drop → cài lên điện thoại
 
-## Cách 2 — Cài lên điện thoại Android (PWA / "app")
+### Bước 1 — Lên máy tính, đưa file lên web miễn phí
+1. Mở https://app.netlify.com/drop (không cần đăng ký).
+2. **Kéo cả thư mục `outputs`** (chứa 4 file kể trên) thả vào ô trên trang Netlify.
+3. Vài giây sau Netlify trả về một URL kiểu `https://abc-xyz-12345.netlify.app`.
+4. URL đầy đủ của dashboard sẽ là: `https://abc-xyz-12345.netlify.app/bts-dashboard.html`
+5. Copy URL này.
 
-### Bước 1: Upload toàn bộ thư mục `outputs` lên một web host miễn phí
-- **GitHub Pages** (khuyến nghị): https://pages.github.com — push 4 file lên repo, bật Pages.
-- **Netlify Drop**: https://app.netlify.com/drop — kéo thả thư mục `outputs`, có URL ngay.
-- **Vercel**: https://vercel.com — tương tự.
+### Bước 2 — Trên điện thoại Android
+1. Mở **Chrome** (phải là Chrome, không phải Cốc Cốc / Samsung Browser).
+2. Dán URL từ bước trên vào Chrome, truy cập.
+3. Sau vài giây, Chrome hiện thanh "Cài đặt Dashboard" hoặc bạn bấm nút **⋮** (3 chấm trên cùng góc phải) → chọn **"Thêm vào Màn hình chính"** / **"Cài đặt ứng dụng"**.
+4. Xác nhận "Cài đặt" — icon dashboard xuất hiện trên màn hình chính như một app thực sự.
+5. Mở icon đó → app chạy fullscreen, không có thanh URL của Chrome, dùng được cả khi không có Internet (sau lần đầu mở online).
 
-Sau khi host xong, bạn có URL kiểu `https://username.github.io/bts-dashboard/bts-dashboard.html`.
+### Bước 3 — Sử dụng
+1. Mở app, bấm **6 slot upload** trên giao diện:
+   - File 1: Báo cáo trạm (CSV)
+   - File 2: Chi phí duy trì trạm (CSV)
+   - File 3-5: MTCL Tháng 2 / 3 / 4 (CSV hoặc XLSX)
+   - File 6: Phân công nhân sự (CSV hoặc XLSX)
+2. Mỗi file upload xong, dashboard cập nhật ngay. Có file nào dùng file đó, không bắt buộc đủ 6.
+3. Dữ liệu **lưu trên máy bạn** (localStorage cho File 1-2; bộ nhớ phiên cho MTCL/PC) — không gửi lên server.
 
-### Bước 2: Trên điện thoại Android
-1. Mở URL bằng **Chrome**.
-2. Chrome sẽ hiện banner "Cài Dashboard vào điện thoại" → bấm Cài.
-3. Hoặc thủ công: menu Chrome (⋮) → **Thêm vào Màn hình chính** / "Add to Home Screen".
-4. Icon Dashboard xuất hiện như một app riêng, mở fullscreen, chạy offline.
+---
 
-### Bước 3: Trên iPhone
-1. Mở URL bằng **Safari**.
-2. Bấm nút Share → **Thêm vào Màn hình chính** / "Add to Home Screen".
+## CÁCH 2 — Tạo file APK thực sự (cài như app thường, không cần Chrome)
 
-## Cách 3 — Đóng gói thành file APK thật
+Sau khi đã có URL từ Cách 1, dùng PWABuilder của Microsoft để build APK:
 
-Nếu bạn *thực sự* cần file `.apk` để cài thủ công (không qua Chrome), có 2 cách:
+1. Lên máy tính, mở https://www.pwabuilder.com
+2. Dán URL `https://abc-xyz-12345.netlify.app/bts-dashboard.html` vào ô tìm kiếm → bấm **Start**.
+3. PWABuilder phân tích → hiện điểm số PWA. Bấm **Package For Stores**.
+4. Chọn **Android** → bấm **Generate Package**.
+5. Có thể dùng tuỳ chọn mặc định (chỉ cần sửa Package ID kiểu `com.bts.dashboard`).
+6. Tải file `.zip` về → giải nén → bên trong có file `.apk` (signed) hoặc `.aab`.
+7. Copy file `.apk` sang điện thoại (qua USB / Zalo / Drive).
+8. Trên điện thoại: mở file `.apk` → cài đặt (cần bật **"Cài đặt từ nguồn không xác định"** trong Cài đặt → Bảo mật).
 
-### A. Dịch vụ tự động (dễ nhất — không cần code)
-Sau khi đã host dashboard online (Cách 2 bước 1), dùng một trong các dịch vụ:
-- **PWABuilder** (Microsoft, miễn phí): https://www.pwabuilder.com → dán URL → Generate Android Package → tải file `.apk` hoặc `.aab`.
-- **WebIntoApp**: https://www.webintoapp.com — dán URL, đặt tên app, tải APK.
-- **AppsGeyser**: https://appsgeyser.com
+**Lưu ý APK:** đây là Trusted Web Activity, vẫn cần URL Netlify online để app fetch HTML/JS. Tuy nhiên sau lần đầu tiên, service worker cache toàn bộ → dùng offline được.
 
-Các dịch vụ này wrap PWA của bạn trong WebView → tạo APK installable.
+---
 
-### B. Tự build (cho dev)
-- Dùng **Capacitor** (Ionic): `npm i @capacitor/core @capacitor/cli`, copy dashboard vào `www/`, `npx cap add android`, `npx cap open android` → Android Studio build APK.
-- Hoặc dùng **Bubblewrap** (Google) cho Trusted Web Activity.
+## CÁCH 3 — Không có Internet để host: Mở trực tiếp file HTML
 
-## Cấu trúc phân tích
+Nếu không tiện upload online, bạn vẫn xem được dashboard:
 
-Dashboard có 6 tab:
+1. Copy 4 file vào điện thoại (qua USB hoặc Zalo).
+2. Cài app **Files by Google** hoặc trình duyệt file mặc định.
+3. Bấm chọn `bts-dashboard.html` → mở bằng Chrome.
+4. Chạy được nhưng **không cài được thành app** (PWA chỉ hoạt động qua HTTPS).
 
-1. **Tổng quan** — Top 10 lãi nhất / Top 10 lỗ nặng / Phân bố biên lợi nhuận.
-2. **Xếp hạng trạm** — Bảng toàn bộ 1322 trạm, sắp xếp + lọc theo phường / loại / lãi-lỗ.
-3. **Bất thường** — Chi phí có z-score > 2 (cao bất thường) + so sánh chênh lệch giữa File 1 và File 2.
-4. **Xu hướng** — Doanh thu / chi phí theo tháng, top 8 phường tăng trưởng nhanh.
-5. **Cơ cấu chi phí** — Pie tỉ trọng các khoản chi phí + chi phí trung bình theo loại trạm (MACRO / CRAN / MORAN).
-6. **Khuyến nghị** — Sinh tự động, sắp xếp theo mức tiết kiệm tiềm năng.
+---
 
-## Lưu ý về dữ liệu
+## 10 tab phân tích trong dashboard
 
-- **File 1** (Báo cáo trạm) chứa Doanh thu, lưu lượng, số TB — đầy đủ 4 tháng.
-- **File 2** (CP duy trì) chứa chi phí chi tiết — chỉ có 2 tháng.
-- Cột "Chi phí trạm" trong File 1 thường thấp hơn tổng chi phí trong File 2 ~30% (do File 1 chỉ tính một số khoản). Dashboard sẽ ưu tiên dùng File 2 nếu có.
-- Vài trạm bị thiếu dữ liệu chi phí trong File 1 — dashboard sẽ flag.
+| # | Tab | Nội dung |
+|---|---|---|
+| 1 | 📊 Tổng quan | Top 10 lãi / lỗ, phân bố biên lợi nhuận |
+| 2 | 🏆 Xếp hạng trạm | Bảng toàn bộ trạm, lọc theo phường / loại |
+| 3 | 📡 KPI / MTCL | PRB, RSRP, CQI, Accessibility, Retainability, Throughput, lưu lượng (mới) |
+| 4 | 🛒 Khuyến nghị bán Sim | NÊN BÁN / CÂN NHẮC / KHÔNG NÊN theo 4 tiêu chí (mới) |
+| 5 | 👥 Theo nhân sự | View tổng hợp theo từng người VHKT + breakdown CSHT (mới) |
+| 6 | 🆕 Trạm mới GLI | Site GLIxxx chưa có số liệu — đã tách riêng (mới) |
+| 7 | ⚠️ Bất thường CP | Z-score > 2 trên chi phí |
+| 8 | 📈 Xu hướng | Doanh thu / chi phí theo tháng, top 8 phường |
+| 9 | 🥧 Cơ cấu chi phí | Pie tỉ trọng + chi phí TB theo loại trạm |
+| 10 | 💡 Khuyến nghị | Sinh tự động, sắp xếp theo mức tiết kiệm tiềm năng |
+
+Nút **⬇️ Excel** ở header xuất báo cáo `.xlsx` 8 sheet đầy đủ.
+
+---
+
+## Ngưỡng đánh giá (chỉnh được trong code)
+
+```js
+TH = {
+  prbHigh: 80,      // ≥ 80% PRB → quá tải → KHÔNG NÊN bán
+  prbLow: 30,       // < 30% PRB → còn dư nhiều tải
+  prbSweet: 70,     // 30-70% → tối ưu để bán
+  rsrpGood: -95,    // ≥ -95 dBm → vùng phủ tốt
+  rsrpBad: -110,    // ≤ -110 dBm → vùng phủ yếu
+  cqiGood: 8,
+  accGood: 98,      // Accessibility ≥ 98%
+  retGood: 98,      // Retainability ≥ 98%
+  tpGood: 10        // Throughput ≥ 10 Mbps
+}
+```
+
+Muốn đổi ngưỡng, mở `bts-dashboard.html` bằng Notepad, tìm `const TH = {` và sửa số.
+
+---
 
 ## Cập nhật dữ liệu hàng tháng
 
-Mỗi tháng:
-1. Export lại 2 file CSV mới từ Excel (đè tên cũ hoặc đặt tên mới).
-2. Mở dashboard → bấm **↻ Tải lại CSV**.
-3. Chọn 2 file mới — dashboard cập nhật tức thì.
+Trong app/dashboard, bấm **↻ Tải lại** → upload file mới (có thể đè lên dữ liệu cũ). Site GLI mới sẽ tự động được tách ra tab riêng.
